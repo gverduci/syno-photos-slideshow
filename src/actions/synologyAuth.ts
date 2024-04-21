@@ -1,12 +1,7 @@
 "use server"
 
+import { LoginResponse } from "@/types/loginResponse";
 import { getLoginUrl } from "@/utils/utils";
-
-export type LoginResponse = {
-  cookie: string;
-  synotoken: string;
-  sid: string;
-}
 
 export type SynologyLoginResponse = {
   data: {

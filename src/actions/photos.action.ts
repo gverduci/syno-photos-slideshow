@@ -1,4 +1,4 @@
-import { LoginResponse } from "./auth";
+import { LoginResponse } from "@/types/loginResponse";
 import {
   Album,
   Albums,
@@ -28,7 +28,7 @@ export async function photosSamePeriod(
       new Date(i, oneWeekAfter.getMonth(), oneWeekAfter.getDate()).getTime() /
       1000;
     promises.push(
-      filterItemsWithThumbs(from, to, 1, auth.synotoken, auth.sid, auth.cookie)
+      filterItemsWithThumbs(from, to, [], 0, auth.synotoken, auth.sid)
     );
   }
   const values = await Promise.all(promises);

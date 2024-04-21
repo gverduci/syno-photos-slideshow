@@ -16,7 +16,7 @@ export const Photo = async ({urls, currentIndex, token, sid}: Props) => {
     const src: string = await getItemThumbnailByUrl(url);
     const nextIndex = currentIndex + 1 > urls.length -1 ? 0 : currentIndex + 1;
     return <>
-      <Refresh urls={urls} nextIndex={nextIndex} token={token} sid={sid}/>
+      <Refresh nextIndex={nextIndex} />
       <Image 
         src={src} 
         alt="image" 

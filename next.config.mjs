@@ -5,8 +5,9 @@ const nextConfig = {
         synologyPhotosUsername: process.env.SYNOLOGY_PHOTOS_USERNAME,
         synologyPhotosPassword: process.env.SYNOLOGY_PHOTOS_PASSWORD,
         slideshowTiming: process.env.SLIDESHOW_TIMING,
+        daysInterval: process.env.DAYS_INTERVAL,
         passphraseSharedAlbum: process.env.PASSPHRASE_SHARED_ALBUM,
-        useSharedSpace: process.env.USE_SHARED_SPACE === "true",
+        useSharedSpace: process.env.USE_SHARED_SPACE,
     },
 };
 

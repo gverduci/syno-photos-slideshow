@@ -1,5 +1,5 @@
 "use server"
-import { getBrowseSharedAlbumItemUrl, getBrowseSharedAlbumUrl, getCgiUrl, getItemThumbnailUrl } from "@/utils/utils";
+import { getBrowseSharedAlbumItemUrl, getBrowseSharedAlbumUrl, getCgiUrl, getFilterItemsUrl, getFiltersUrl, getItemThumbnailUrl } from "@/utils/utils";
 
 /**
  * Check fetch (http) error
@@ -164,6 +164,41 @@ export type Items = {
   };
 }
 
+export type Location = {
+  children: Location[];
+  id: number;
+  level: number;
+  name: string;
+}
+
+export type ItemType = {
+  id: number;
+  name: string;
+}
+
+export type TimeFilter = {
+  year: number;
+}
+
+export type Filters = {
+  data: {
+    aperture: [];
+    camera: [];
+    exposure_time_group: [];
+    flash: [];
+    focal_length_group: [];
+    folder_filter: [];
+    general_tag: [],
+    geocoding:[],
+    iso: [],
+    item_type: ItemType[]
+    lens: [],
+    person: [],
+    rating: number[],
+    time: TimeFilter[]
+  };
+}
+
 
 /**
  * 
@@ -203,20 +238,31 @@ export async function getItemThumbnail(item: {filename: string, id:number, index
   return getItemThumbnailByUrl(loginUrl);
 }
 
-// ---------------
+/**
+ * 
+ * @param token the token returned by the login (synotoken)
+ * @param sid the sid returned by the login
+ * @returns items 
+ */
+export async function getFilters(token: string, sid: string) : Promise<Filters> {
+  const url = getFiltersUrl(token, sid);
+  const res = await fetch(url);
 
-export async function filterItemsWithThumbs(timeFrom:number, timeTo:number, folderId: number, token: string, _sid: string = "", cookie: any) : Promise<Items> {
-  const time = `[{"start_time":${timeFrom},"end_time":${timeTo}}]`;
-  const timeEncoded = encodeURIComponent(time);
-  const additional = `["thumbnail","resolution","orientation","video_convert","video_meta"]`;
-  const additionalEncoded = encodeURIComponent(additional);
-  const loginUrl = `${getCgiUrl()}?api=SYNO.FotoTeam.Browse.Item&method=list_with_filter&version=2&additional=${additionalEncoded}&sort_by=%22takentime%22&sort_direction=%22asc%22&offset=0&limit=100&time=${timeEncoded}&SynoToken=${token}&_sid=${_sid}`;
-  const res = await fetch(loginUrl);
+  checkFetchResponseErrors(res);
+
+  return getJsonResponse<Filters>(res);
+}
+
+export async function filterItemsWithThumbs(timeFrom:number, timeTo:number, folders: number[], minStars: number, token: string, sid: string) : Promise<Items> {
+  const url = getFilterItemsUrl(timeFrom, timeTo, folders, minStars, token, sid);
+  const res = await fetch(url);
   
   checkFetchResponseErrors(res);
 
   return getJsonResponse<Items>(res);
 }
+
+// ---------------
 
 export async function getAlbums(token: string, _sid: string = "") {
   const loginUrl = `${getCgiUrl()}?api=SYNO.Foto.Browse.Album&version=1&method=list&offset=0&limit=100&SynoToken=${token}&_sid=${_sid}`;
