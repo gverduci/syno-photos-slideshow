@@ -3,6 +3,8 @@
 import { LoginResponse } from "@/types/loginResponse";
 import { getLoginUrl } from "@/utils/utils";
 
+const nextRevalidate = { next: { revalidate: 3600 } }
+
 export type SynologyLoginResponse = {
   data: {
     did: string, // "6789...",
@@ -23,6 +25,7 @@ async function login() : Promise<LoginResponse>{
       headers: {
         'Content-Type': 'application/json',
       },
+      ...nextRevalidate
     })
    
     if (!res.ok) {

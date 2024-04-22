@@ -1,6 +1,8 @@
 "use server"
 import { getBrowseSharedAlbumItemUrl, getBrowseSharedAlbumUrl, getCgiUrl, getFilterItemsUrl, getFiltersUrl, getItemThumbnailUrl } from "@/utils/utils";
 
+const nextRevalidate = { next: { revalidate: 3600 } }
+
 /**
  * Check fetch (http) error
  * @param res 
@@ -127,11 +129,12 @@ export type Albums = {
  */
 export async function getSharedAlbum(token: string, sid: string): Promise<Albums> {
   const url = getBrowseSharedAlbumUrl(token, sid);
-  const res = await fetch(url,{
+  const res = await fetch(url, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
+    ...nextRevalidate
   })
   
   checkFetchResponseErrors(res);
@@ -209,7 +212,7 @@ export type Filters = {
  */
 export async function browseSharedAlbumItemsWithThumbs(itemCount:number, token: string, sid: string) : Promise<Items> {
   const url = getBrowseSharedAlbumItemUrl(0, itemCount, token, sid);
-  const res = await fetch(url);
+  const res = await fetch(url, nextRevalidate);
 
   checkFetchResponseErrors(res);
 
@@ -222,7 +225,7 @@ export async function browseSharedAlbumItemsWithThumbs(itemCount:number, token: 
  * @returns the base64 src 
  */
 export async function getItemThumbnailByUrl(url: string) : Promise<string> {
-  const res = await fetch(url)
+  const res = await fetch(url, { cache: 'no-store' })
 
   checkFetchResponseErrors(res);
 
@@ -246,7 +249,7 @@ export async function getItemThumbnail(item: {filename: string, id:number, index
  */
 export async function getFilters(token: string, sid: string) : Promise<Filters> {
   const url = getFiltersUrl(token, sid);
-  const res = await fetch(url);
+  const res = await fetch(url, nextRevalidate);
 
   checkFetchResponseErrors(res);
 
@@ -255,7 +258,7 @@ export async function getFilters(token: string, sid: string) : Promise<Filters> 
 
 export async function filterItemsWithThumbs(timeFrom:number, timeTo:number, folders: number[], minStars: number, token: string, sid: string) : Promise<Items> {
   const url = getFilterItemsUrl(timeFrom, timeTo, folders, minStars, token, sid);
-  const res = await fetch(url);
+  const res = await fetch(url, nextRevalidate);
   
   checkFetchResponseErrors(res);
 
@@ -271,6 +274,7 @@ export async function getAlbums(token: string, _sid: string = "") {
     headers: {
       'Content-Type': 'application/json',
     },
+    ...nextRevalidate
   })
   
   checkFetchResponseErrors(res);
@@ -279,8 +283,8 @@ export async function getAlbums(token: string, _sid: string = "") {
 }
 
 export  async function getFolders(folderId: number, method: string, token: string, _sid: string = "") {
-  const loginUrl = `${getCgiUrl()}?api=SYNO.FotoTeam.Browse.Folder&version=1&method=${method}&id=${folderId}&offset=0&limit=100&SynoToken=${token}&_sid=${_sid}`;
-  const res = await fetch(loginUrl)
+  const url = `${getCgiUrl()}?api=SYNO.FotoTeam.Browse.Folder&version=1&method=${method}&id=${folderId}&offset=0&limit=100&SynoToken=${token}&_sid=${_sid}`;
+  const res = await fetch(url, nextRevalidate)
   
   checkFetchResponseErrors(res);
 
@@ -288,12 +292,13 @@ return getJsonResponse(res);
 }
 
 export  async function getFolderItems(folderId: number, token: string, _sid: string = "", cookie: any) {
-  const loginUrl = `${getCgiUrl()}?api=SYNO.FotoTeam.Browse.Item&version=1&method=list&type=photo&offset=0&limit=100&folder_id=${folderId}&SynoToken=${token}&_sid=${_sid}`;
-  const res = await fetch(loginUrl,{
+  const url = `${getCgiUrl()}?api=SYNO.FotoTeam.Browse.Item&version=1&method=list&type=photo&offset=0&limit=100&folder_id=${folderId}&SynoToken=${token}&_sid=${_sid}`;
+  const res = await fetch(url,{
     method: 'GET',
       headers: {
       'Content-Type': 'application/json'
     },
+    ...nextRevalidate
   })
   
   checkFetchResponseErrors(res);
@@ -302,8 +307,8 @@ return getJsonResponse(res);
 }
 
 export async function getFolderItemsWithThumbs(folderId: number, token: string, _sid: string = "", cookie: any) {
-  const loginUrl = `${getCgiUrl()}?api=SYNO.FotoTeam.Browse.Item&method=list&version=1&folder_id=${folderId}&additional=%5B%22thumbnail%22%2C%22resolution%22%2C%22orientation%22%2C%22video_convert%22%2C%22video_meta%22%5D&sort_by=%22takentime%22&sort_direction=%22asc%22&offset=0&limit=100&SynoToken=${token}&_sid=${_sid}`;
-  const res = await fetch(loginUrl);
+  const url = `${getCgiUrl()}?api=SYNO.FotoTeam.Browse.Item&method=list&version=1&folder_id=${folderId}&additional=%5B%22thumbnail%22%2C%22resolution%22%2C%22orientation%22%2C%22video_convert%22%2C%22video_meta%22%5D&sort_by=%22takentime%22&sort_direction=%22asc%22&offset=0&limit=100&SynoToken=${token}&_sid=${_sid}`;
+  const res = await fetch(url, nextRevalidate);
   
   checkFetchResponseErrors(res);
 
@@ -311,8 +316,8 @@ export async function getFolderItemsWithThumbs(folderId: number, token: string, 
 }
 
 export async function downloadItem(item: {filename: string, id:number, indexed_time:number}, token: string, _sid: string = "") {
-  const loginUrl = `${getCgiUrl()}?item_id=[${item.id}]&api=SYNO.FotoTeam.Download&method=download&version=1&force_download=true&SynoToken=${token}&_sid=${_sid}`;
-  const res = await fetch(loginUrl,{method: 'GET'})
+  const url = `${getCgiUrl()}?item_id=[${item.id}]&api=SYNO.FotoTeam.Download&method=download&version=1&force_download=true&SynoToken=${token}&_sid=${_sid}`;
+  const res = await fetch(url,{method: 'GET', ...nextRevalidate})
   
   checkFetchResponseErrors(res);
 
