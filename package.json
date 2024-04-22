@@ -1,6 +1,6 @@
 {
   "name": "myphotos",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "javascript-time-ago": "^2.5.10",
     "next": "14.1.4",
     "react": "^18",
     "react-dom": "^18"
