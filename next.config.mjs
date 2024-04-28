@@ -8,6 +8,7 @@ const nextConfig = {
         daysInterval: process.env.DAYS_INTERVAL,
         passphraseSharedAlbum: process.env.PASSPHRASE_SHARED_ALBUM,
         useSharedSpace: process.env.USE_SHARED_SPACE,
+        minStars: process.env.MIN_STARS,
     },
 };
 

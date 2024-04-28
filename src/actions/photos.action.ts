@@ -1,7 +1,8 @@
-import { LoginResponse } from "@/types/loginResponse";
+import logger from "@/utils/logger";
 import {
   Album,
   Albums,
+  Item,
   Items,
   browseSharedAlbumItemsWithThumbs,
   filterItemsWithThumbs,
@@ -13,13 +14,20 @@ export type Photo = {
   cache_key: string;
   name: string;
   time: number;
+};
+
+function getMultipleRandom(arr: Item[], num: number) {
+  const shuffled = [...arr].sort(() => 0.5 - Math.random());
+
+  return shuffled.slice(0, num);
 }
 
 export async function photosSamePeriod(
   token: string,
   sid: string,
   daysInterval: number,
-  startYear: number
+  startYear: number,
+  minStars: number
 ): Promise<Photo[]> {
   const now = new Date();
   const oneWeekAgo = new Date();
@@ -35,28 +43,30 @@ export async function photosSamePeriod(
     const to =
       new Date(i, oneWeekAfter.getMonth(), oneWeekAfter.getDate()).getTime() /
       1000;
-    promises.push(
-      filterItemsWithThumbs(from, to, [], 0, token, sid)
-    );
+    promises.push(filterItemsWithThumbs(from, to, [], minStars, token, sid));
   }
-  const values = await Promise.all(promises);
-  values.forEach((value) => {
-    value.data.list.forEach(async (item: any) => {
-      urls.push({
-        cache_key: item.additional.thumbnail.cache_key,
-        name: item.filename,
-        time: item.time,
-      });
-    });
+  const values: PromiseSettledResult<Items>[] = await Promise.allSettled(
+    promises
+  );
+  values.forEach((result: PromiseSettledResult<Items>) => {
+    if (result.status === "fulfilled") {
+      getMultipleRandom(result.value.data.list, 10).forEach(
+        async (item: any) => {
+          urls.push({
+            cache_key: item.additional.thumbnail.cache_key,
+            name: item.filename,
+            time: item.time,
+          });
+        }
+      );
+    }
   });
   return urls;
 }
 
-
-
 export async function photosSharedAlbum(
   token: string,
-  sid: string,
+  sid: string
 ): Promise<Photo[]> {
   const albums: Albums = await getSharedAlbum(token, sid);
   const album = albums.data.list.find(
@@ -87,17 +97,15 @@ export async function getPhotos(token: string, sid: string): Promise<Photo[]> {
   if (process.env.passphraseSharedAlbum) {
     urls = await photosSharedAlbum(token, sid);
   } else {
-    const filters = await getFilters(
-      token,
-      sid
-    );
+    const filters = await getFilters(token, sid);
     urls = await photosSamePeriod(
       token,
       sid,
       parseInt(process.env.daysInterval || "7", 10),
-      filters.data.time[filters.data.time.length - 1].year
+      filters.data.time[filters.data.time.length - 1].year,
+      parseInt(process.env.minStars || "0", 10),
     );
   }
-
+  logger.info(`#photos: ${urls.length}`);
   return urls;
 }

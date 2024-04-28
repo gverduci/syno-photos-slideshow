@@ -13,7 +13,7 @@ export const Refresh = ({nextIndex}: Props) => {
         // push the new url to the router after X second
         const timeoutId = setTimeout(() => {
             router.push(`/slideshow/${nextIndex}`)
-        }, parseInt(process.env.slideshowTiming || "15000", 10));
+        }, parseInt(process.env.slideshowTiming || "20000", 10));
         return () => clearTimeout(timeoutId);
     }, [nextIndex, router]);
     
