@@ -15,8 +15,8 @@ export default async function Slideshow({ params: { ssparams } }: Props) {
   
   const auth = await login();
 
-  const  urls: PhotoType[] = await getPhotos(auth.synotoken, auth.sid);
+  const  photos: PhotoType[] = await getPhotos(auth.synotoken, auth.sid);
 
   return (
-    <Photo urls={urls} currentIndex={nextIndex} token={auth.synotoken} sid={auth.sid}/>
+    <Photo photos={photos} currentIndex={nextIndex} token={auth.synotoken} sid={auth.sid}/>
 )}

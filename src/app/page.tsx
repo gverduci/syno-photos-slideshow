@@ -4,9 +4,9 @@ import { Photo } from "@/component/ui/photo";
 
 export default async function Home() {
   const auth = await login();
-  const  urls: PhotoType[] = await getPhotos(auth.synotoken, auth.sid);
+  const  photos: PhotoType[] = await getPhotos(auth.synotoken, auth.sid);
   
   return (
-    <Photo urls={urls} currentIndex={0} token={auth.synotoken} sid={auth.sid} />
+    <Photo photos={photos} currentIndex={0} token={auth.synotoken} sid={auth.sid} />
   );
 }

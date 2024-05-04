@@ -53,6 +53,7 @@ SLIDESHOW_TIMING             | optional    | the time between slides (default 20
 DAYS_INTERVAL                | optional    | number used to create a range of days for the past years (default 7)  | 7 (now - 7 &lt; x &lt; now + 7)
 PASSPHRASE_SHARED_ALBUM      | optional    | the shared album code                                                 | 12ab45 (the last part of the shared url https://host.me/photo/mo/sharing/12ab45)
 USE_SHARED_SPACE             | required    | "false" if you use a PASSPHRASE_SHARED_ALBUM<br>"true" if you don't use PASSPHRASE_SHARED_ALBUM<br>and if your photos are in the shared space | "false"
+MIN_STARS                    | optional    | filter by stars (form MIN_STARS to 5)                                 | 1
 
 (*) To avoid DNS configuration, you can use the ip address
 
@@ -100,6 +101,7 @@ Phase 8 - manage the app daemon with pm2
 
 - `sudo pm2 stop syno-photo-slideshow`
 - `sudo pm2 monit`
+- `sudo cat $HOME/.pm2/logs/XXX-err.log`
 
 ## Configure the Raspberry Pi
 

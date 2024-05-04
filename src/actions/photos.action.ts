@@ -35,7 +35,7 @@ export async function photosSamePeriod(
   oneWeekAgo.setDate(now.getDate() - daysInterval);
   oneWeekAfter.setDate(now.getDate() + daysInterval);
   const year = now.getFullYear();
-  const urls: Photo[] = [];
+  const photos: Photo[] = [];
   const promises = [];
   for (var i = startYear; i < year; i++) {
     const from =
@@ -52,7 +52,7 @@ export async function photosSamePeriod(
     if (result.status === "fulfilled") {
       getMultipleRandom(result.value.data.list, 10).forEach(
         async (item: any) => {
-          urls.push({
+          photos.push({
             cache_key: item.additional.thumbnail.cache_key,
             name: item.filename,
             time: item.time,
@@ -61,7 +61,7 @@ export async function photosSamePeriod(
       );
     }
   });
-  return urls;
+  return photos;
 }
 
 export async function photosSharedAlbum(
@@ -77,15 +77,15 @@ export async function photosSharedAlbum(
     token,
     sid
   );
-  const urls: Photo[] = [];
+  const photos: Photo[] = [];
   items.data.list.forEach(async (item: any) => {
-    urls.push({
+    photos.push({
       cache_key: item.additional.thumbnail.cache_key,
       name: item.filename,
       time: item.time,
     });
   });
-  return urls;
+  return photos;
 }
 
 export async function getPhotos(token: string, sid: string): Promise<Photo[]> {
@@ -93,12 +93,12 @@ export async function getPhotos(token: string, sid: string): Promise<Photo[]> {
   // const subFolders = await getFolders(folders.data.list[2].id, "list", auth.synotoken, auth.sid);
   // const itemsWT = await getFolderItemsWithThumbs(subFolders.data.list[1].id, auth.synotoken, auth.sid, auth.cookie);
 
-  let urls: Photo[] = [];
+  let photos: Photo[] = [];
   if (process.env.passphraseSharedAlbum) {
-    urls = await photosSharedAlbum(token, sid);
+    photos = await photosSharedAlbum(token, sid);
   } else {
     const filters = await getFilters(token, sid);
-    urls = await photosSamePeriod(
+    photos = await photosSamePeriod(
       token,
       sid,
       parseInt(process.env.daysInterval || "7", 10),
@@ -106,6 +106,6 @@ export async function getPhotos(token: string, sid: string): Promise<Photo[]> {
       parseInt(process.env.minStars || "0", 10),
     );
   }
-  logger.info(`#photos: ${urls.length}`);
-  return urls;
+  logger.info(`#photos: ${photos.length}`);
+  return photos;
 }

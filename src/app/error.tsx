@@ -2,9 +2,8 @@
 
 import logger from "@/utils/loggerBrowser";
 import { useEffect } from "react";
-
  
-export default function GlobalError({
+export default function Error({
   error,
   reset,
 }: {

@@ -1,6 +1,6 @@
 {
   "name": "myphotos",
-  "version": "0.3.5",
+  "version": "0.4.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,11 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "client-only": "^0.0.1",
     "javascript-time-ago": "^2.5.10",
     "next": "14.1.4",
     "pino": "^9.0.0",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@types/node": "^20",

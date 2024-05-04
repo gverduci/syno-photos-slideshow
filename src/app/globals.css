@@ -27,6 +27,14 @@ h2 {
        1px 1px 0 #000; */
 }
 
+h3 {
+   color: lightgray;
+}
+
+h4 {
+  color: lightgray;
+}
+
 /* body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(

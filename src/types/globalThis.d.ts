@@ -1,6 +1,7 @@
 import { LoginResponse } from "./loginResponse";
+import { Photo as PhotoType } from "@/actions/photos.action";
 
 declare global {
-    var urls: string[];
+    var photos: PhotoType[];
     var auth: LoginResponse;
   }

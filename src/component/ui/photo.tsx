@@ -5,9 +5,10 @@ import Image from "next/image";
 import { Refresh } from "./refresh";
 import { getItemThumbnailUrlByCacheKey } from "@/utils/utils";
 import { Photo as PhotoType } from "@/actions/photos.action";
+import logger from "@/utils/logger";
 
 type Props = {
-    urls: PhotoType[];
+    photos: PhotoType[];
     currentIndex: number;
     token: string | undefined;
     sid: string | undefined;
@@ -15,14 +16,16 @@ type Props = {
 
 TimeAgo.addDefaultLocale(en)
 
-export const Photo = async ({urls, currentIndex, token, sid}: Props) => { 
-  if (urls.length > 0 && currentIndex <= urls.length - 1 && token && sid){
-    const url: string = getItemThumbnailUrlByCacheKey(urls[currentIndex].cache_key, token, sid);
+export const Photo = async ({photos, currentIndex, token, sid}: Props) => { 
+  if (photos.length > 0 && currentIndex <= photos.length - 1 && token && sid){
+    logger.info(`#index: ${currentIndex}/${photos.length - 1}`);
+    const url: string = getItemThumbnailUrlByCacheKey(photos[currentIndex].cache_key, token, sid);
     const src: string = await getItemThumbnailByUrl(url);
-    const nextIndex = currentIndex + 1 > urls.length -1 ? 0 : currentIndex + 1;
-    const datePhoto = urls[currentIndex].time * 1000;
+    const nextIndex = currentIndex + 1 > photos.length -1 ? 0 : currentIndex + 1;
+    const datePhoto = photos[currentIndex].time * 1000;
     const timeAgo = new TimeAgo('it-IT')
     const ago = timeAgo.format(new Date(datePhoto))
+    
     return <div className="relative h-screen">
       <Refresh nextIndex={nextIndex} />
       <Image 
@@ -38,5 +41,6 @@ export const Photo = async ({urls, currentIndex, token, sid}: Props) => {
       </div>
     </div>;
   }
+  logger.info(`#no photos?! #photos: ${photos.length} - #index : ${currentIndex}`);
   return <div>loading...</div>;
 }

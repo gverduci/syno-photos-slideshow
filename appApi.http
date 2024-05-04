@@ -1,0 +1,21 @@
+@baseUrl = http://localhost:3000
+
+###
+
+# @name loggerWarn
+POST {{baseUrl}}/api/logger/warn
+content-type: application/json
+
+{
+    "message": "test warn"
+}
+
+###
+
+# @name loggerError
+POST {{baseUrl}}/api/logger/error
+content-type: application/json
+
+{
+    "message": "test error"
+}
