@@ -18,7 +18,7 @@ TimeAgo.addDefaultLocale(en)
 
 export const Photo = async ({photos, currentIndex, token, sid}: Props) => { 
   if (photos.length > 0 && currentIndex <= photos.length - 1 && token && sid){
-    logger.info(`#index: ${currentIndex}/${photos.length - 1}`);
+    logger.info(`${currentIndex} ${photos[currentIndex].name}`);
     const url: string = getItemThumbnailUrlByCacheKey(photos[currentIndex].cache_key, token, sid);
     const src: string = await getItemThumbnailByUrl(url);
     const nextIndex = currentIndex + 1 > photos.length -1 ? 0 : currentIndex + 1;
@@ -41,6 +41,6 @@ export const Photo = async ({photos, currentIndex, token, sid}: Props) => {
       </div>
     </div>;
   }
-  logger.info(`#no photos?! #photos: ${photos.length} - #index : ${currentIndex}`);
+  logger.info(`#no photos?! # ${photos.length} - ${currentIndex}`);
   return <div>loading...</div>;
 }
