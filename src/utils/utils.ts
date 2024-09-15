@@ -31,7 +31,7 @@ export function getCgiUrl(addMoSharing: boolean = false): string {
  * @returns the authentication cgi url
  */
 export function getAuthCgiUrl(): string {
-  return `${process.env.synologyPhotosApiBaseUrl}/webapi/auth.cgi`;
+  return `${process.env.synologyPhotosApiBaseUrl}/webapi/entry.cgi`;
 }
 
 /**
@@ -216,7 +216,7 @@ export function getFilterItemsUrl(
  * @returns the login url
  */
 export function getLoginUrl(): string {
-  return `${getAuthCgiUrl()}?api=SYNO.API.Auth&version=3&method=login&account=${
+  return `${getAuthCgiUrl()}?api=SYNO.API.Auth&version=6&method=login&account=${
     process.env.synologyPhotosUsername
   }&passwd=${process.env.synologyPhotosPassword}&enable_syno_token=yes`;
 }
