@@ -16,7 +16,7 @@ export type Photo = {
   time: number;
 };
 
-function getMultipleRandom(arr: Item[], num: number) {
+function getMultipleRandom(arr: any[], num: number) {
   const shuffled = [...arr].sort(() => 0.5 - Math.random());
 
   return shuffled.slice(0, num);
@@ -37,7 +37,7 @@ export async function photosSamePeriod(
   const year = now.getFullYear();
   const photos: Photo[] = [];
   const promises = [];
-  for (var i = startYear; i < year; i++) {
+  for (var i = startYear; i <= year; i++) {
     const from =
       new Date(i, oneWeekAgo.getMonth(), oneWeekAgo.getDate()).getTime() / 1000;
     const to =
@@ -61,7 +61,8 @@ export async function photosSamePeriod(
       );
     }
   });
-  return photos;
+  const shuffledPhoto : Photo[] = getMultipleRandom(photos, photos.length)
+  return shuffledPhoto;
 }
 
 export async function photosSharedAlbum(
@@ -106,6 +107,6 @@ export async function getPhotos(token: string, sid: string): Promise<Photo[]> {
       parseInt(process.env.minStars || "0", 10),
     );
   }
-  logger.info(`#photos: ${photos.length}`);
+  logger.info(`#${photos.length}`);
   return photos;
 }
