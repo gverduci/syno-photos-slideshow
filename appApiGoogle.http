@@ -1,0 +1,68 @@
+@baseUrl = https://photoslibrary.googleapis.com
+@APIKey = {{$dotenv GOOGLEPHOTO_API_KEY}}
+@ClientID = {{$dotenv GOOGLE_CLIENT_ID}}
+@Secret = {{$dotenv GOOGLE_SECRET}}
+
+
+GET https://openidconnect.googleapis.com/v1/userinfo
+Authorization: Bearer {{$oidcAccessToken clientId:{{ClientID}} callbackPort:7777 authorizeEndpoint:https://accounts.google.com/o/oauth2/v2/auth tokenEndpoint:https://oauth2.googleapis.com/token}}
+Accept: application/json
+
+###
+
+# @name oauth2
+POST https://www.googleapis.com/oauth2/v4/token
+content-type: application/json
+
+{
+    "client_id": "{{ClientID}}",
+    "client_secret": "{{Secret}}",
+    "refresh_token": null,
+    "grant_type": "refresh_token"
+}
+
+###
+
+@authToken = {{oauth2.response.body.access_token}}
+
+###
+
+POST https://photoslibrary.googleapis.com/v1/mediaItems:search?key={{APIKey}}
+content-type: application/json
+authorization: Bearer {{authToken}}
+accept: application/json
+
+{
+  "pageSize": 100,
+  "filters": {
+    "dateFilter": {
+        "dates": [],
+        "ranges": [
+            {
+                "startDate": {
+                    "year": 2023,
+                    "month": 1,
+                    "day": 1
+                },
+                "endDate": {
+                    "year": 2023,
+                    "month": 5,
+                    "day": 1
+                }
+            }
+        ]
+    },
+  },
+}
+###
+
+# @name get
+GET {{baseUrl}}/v1/albums?pageSize=5
+content-type: application/json
+authorization: Bearer {{authToken}}
+
+{
+    "message": "test warn"
+}
+
+###

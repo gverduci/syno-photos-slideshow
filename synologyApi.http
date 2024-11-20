@@ -5,15 +5,24 @@
 ###
 
 # @name login
-GET {{baseUrl}}/webapi/auth.cgi?api=SYNO.API.Auth&version=3&method=login&account={{synologyPhotosUsername}}&passwd={{synologyPhotosPassword}}&enable_syno_token=yes
+GET {{baseUrl}}/webapi/entry.cgi?api=SYNO.API.Auth&version=6&method=login&account={{synologyPhotosUsername}}&passwd={{synologyPhotosPassword}}&enable_syno_token=yes
 
 ###
 
-@synotoken = {{login.response.body.$.data.synotoken}}
-@sid = {{login.response.body.$.data.sid}}
+@token = {{login.response.body.data.synotoken}}
+@sid = {{login.response.body.data.sid}}
+
+###
+
+# @name filter
+
+GET {{baseUrl}}/webapi/entry.cgi?api=SYNO.FotoTeam.Search.Filter&method=list&version=2&additional=["thumbnail"]&setting={"focal_length_group":false,"general_tag":false,"iso":false,"exposure_time_group":false,"camera":false,"item_type":true,"time":true,"aperture":false,"flash":false,"person":false,"geocoding":true,"rating":true,"lens":false}&SynoToken={{token}}&_sid={{sid}}
+
+@success = {{filter.response.body.success}}
+@code = {{filter.response.body.error.code}}
 
 ###
 
 # @name items
-GET {{baseUrl}}/webapi/entry.cgi?api=SYNO.FotoTeam.Browse.Item&method=list&version=1&folder_id=971&additional=%5B%22thumbnail%22%2C%22resolution%22%2C%22orientation%22%2C%22video_convert%22%2C%22video_meta%22%5D&sort_by=%22takentime%22&sort_direction=%22asc%22&offset=0&limit=100&SynoToken={{synotoken}}&_sid={{sid}}
+GET {{baseUrl}}/webapi/entry.cgi?api=SYNO.FotoTeam.Browse.Item&method=list&version=1&folder_id=971&additional=%5B%22thumbnail%22%2C%22resolution%22%2C%22orientation%22%2C%22video_convert%22%2C%22video_meta%22%5D&sort_by=%22takentime%22&sort_direction=%22asc%22&offset=0&limit=100&SynoToken={{token}}&_sid={{sid}}
 
