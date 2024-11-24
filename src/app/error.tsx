@@ -1,8 +1,9 @@
 "use client"
 
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import logger from "@/utils/loggerBrowser";
 import { useEffect } from "react";
+import { revalidatePath } from "next/cache";
  
 export default function Error({
   error,
@@ -11,7 +12,7 @@ export default function Error({
   error: Error & { digest?: string }
   reset: () => void
 }) {
-  // const router = useRouter();
+  const router = useRouter();
   useEffect(() => {
     // Optionally log the error to an error reporting service
     logger.error(error);
@@ -26,8 +27,9 @@ export default function Error({
         onClick={
           // Attempt to recover by trying to re-render the invoices route
           () => {
-            reset()
-            // router.push(`/`)
+            revalidatePath("/");
+            reset();
+            router.push(`/`);
           }
           
         }
