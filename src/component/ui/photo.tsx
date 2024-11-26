@@ -6,6 +6,7 @@ import { Refresh } from "./refresh";
 import { getItemThumbnailUrlByCacheKey } from "@/utils/utils";
 import { Photo as PhotoType } from "@/actions/photos.action";
 import logger from "@/utils/logger";
+import { RedirectToHome } from './redirectToHome';
 
 type Props = {
     photos: PhotoType[];
@@ -20,7 +21,15 @@ export const Photo = async ({photos, currentIndex, token, sid}: Props) => {
   if (photos.length > 0 && currentIndex <= photos.length - 1 && token && sid){
     logger.info(`${currentIndex} ${photos[currentIndex].name}`);
     const url: string = getItemThumbnailUrlByCacheKey(photos[currentIndex].cache_key, token, sid);
-    const src: string = await getItemThumbnailByUrl(url);
+    let src: string = "";
+    try{    
+      src = await getItemThumbnailByUrl(url);
+    }
+    catch(err) {
+      logger.error(err);
+      logger.info("Redirect to home");
+      return <RedirectToHome />
+    }
     const nextIndex = currentIndex + 1 > photos.length -1 ? 0 : currentIndex + 1;
     const datePhoto = photos[currentIndex].time * 1000;
     const timeAgo = new TimeAgo('it-IT')

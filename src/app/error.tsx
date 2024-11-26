@@ -9,8 +9,8 @@ export default function Error({
   error,
   reset,
 }: {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
   const router = useRouter();
   useEffect(() => {
@@ -20,7 +20,7 @@ export default function Error({
 
   return (
     <main className="flex h-full flex-col items-center justify-center">
-      <h3 className="text-center text-2xl">Something went wrong!</h3>
+      <h3 className="text-center text-2xl">Something went wrong (error)!</h3>
       <h4 className="text-center text-xl">{error?.message || "generic error"}</h4>
       <button
         className="mt-4 rounded-md bg-blue-500 px-4 py-2 text-xl text-white transition-colors hover:bg-blue-400 uppercase h-20 w-40"
@@ -31,7 +31,6 @@ export default function Error({
             reset();
             router.push(`/`);
           }
-          
         }
       >
         Try again

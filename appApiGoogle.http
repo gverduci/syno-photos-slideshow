@@ -3,31 +3,80 @@
 @ClientID = {{$dotenv GOOGLE_CLIENT_ID}}
 @Secret = {{$dotenv GOOGLE_SECRET}}
 
+###
 
-GET https://openidconnect.googleapis.com/v1/userinfo
-Authorization: Bearer {{$oidcAccessToken clientId:{{ClientID}} callbackPort:7777 authorizeEndpoint:https://accounts.google.com/o/oauth2/v2/auth tokenEndpoint:https://oauth2.googleapis.com/token}}
-Accept: application/json
+### https://developers.google.com/identity/protocols/oauth2/limited-input-device
 
 ###
 
-# @name oauth2
-POST https://www.googleapis.com/oauth2/v4/token
+# @name deviceAndUserCode
+POST https://oauth2.googleapis.com/device/code HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+client_id={{ClientID}}&scope=email%20profile
+
+### 
+
+@Code = {{deviceAndUserCode.response.body.device_code}}
+
+###
+
+# @name getAuthToken
+POST https://oauth2.googleapis.com/token HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+client_id={{ClientID}}&client_secret={{Secret}}&device_code={{Code}}&grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Adevice_code
+
+###
+
+@authToken = {{getAuthToken.response.body.access_token}}
+@refreshToken = {{getAuthToken.response.body.refresh_token}}
+
+###
+
+# @name refreshAuthToken
+POST https://oauth2.googleapis.com/token HTTP/1.1
+Host: oauth2.googleapis.com
+Content-Type: application/x-www-form-urlencoded
+
+client_id={{ClientID}}&client_secret={{Secret}}&refresh_token={{refreshToken}}&grant_type=refresh_token
+
+
+###
+
+# @authToken = {{refreshAuthToken.response.body.access_token}}
+
+###
+
+# @name revokeAuthToken
+POST https://oauth2.googleapis.com/revoke/?token={{authToken}} HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+###
+
+# @name newSession
+POST https://photospicker.googleapis.com/v1/sessions
 content-type: application/json
-
-{
-    "client_id": "{{ClientID}}",
-    "client_secret": "{{Secret}}",
-    "refresh_token": null,
-    "grant_type": "refresh_token"
-}
+authorization: Bearer {{authToken}}
 
 ###
 
-@authToken = {{oauth2.response.body.access_token}}
+@sessionId = {{newSession.response.body.id}}
 
 ###
 
-POST https://photoslibrary.googleapis.com/v1/mediaItems:search?key={{APIKey}}
+# @name get
+GET https://photospicker.googleapis.com/v1/mediaItems?sessionId={{sessionId}}&pageSize=25
+content-type: application/json
+authorization: Bearer {{authToken}}
+
+###
+
+
+
+###
+
+POST https://photospicker.googleapis.com/v1/mediaItems
 content-type: application/json
 authorization: Bearer {{authToken}}
 accept: application/json
