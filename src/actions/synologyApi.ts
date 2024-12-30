@@ -25,7 +25,7 @@ async function getJsonResponse<T>(res: Response) : Promise<T>{
   if (res.ok && contentTypeJson) {
       const value = await res.json();
       if (value.error){
-        throw new Error(`API error. Status: ${res.status} ${res.statusText} ${JSON.stringify(value)}`)
+        throw new Error(`API error (getJsonResponse). Status: ${res.status} ${res.statusText} ${JSON.stringify(value)}`)
       }
       return value;
   }
@@ -46,7 +46,7 @@ async function getArrayBufferResponse(res: Response) : Promise<globalThis.ArrayB
   if (res.ok && contentTypeJson) {
       const jsonValue = await res.json();
       if (jsonValue.error){
-        throw new Error(`API error. Status: ${res.status} ${res.statusText} ${JSON.stringify(jsonValue)}`)
+        throw new Error(`API error (getArrayBufferResponse). Status: ${res.status} ${res.statusText} ${JSON.stringify(jsonValue)}`)
       }
       throw new Error("Unsupported response: strange error");
   }

@@ -30,19 +30,14 @@ export async function photosSamePeriod(
   minStars: number
 ): Promise<Photo[]> {
   const now = new Date();
-  const oneWeekAgo = new Date();
-  const oneWeekAfter = new Date();
-  oneWeekAgo.setDate(now.getDate() - daysInterval);
-  oneWeekAfter.setDate(now.getDate() + daysInterval);
+  now.setHours(0, 0, 0, 0);
   const year = now.getFullYear();
   const photos: Photo[] = [];
   const promises = [];
   for (var i = startYear; i <= year; i++) {
     const from =
-      new Date(i, oneWeekAgo.getMonth(), oneWeekAgo.getDate()).getTime() / 1000;
-    const to =
-      new Date(i, oneWeekAfter.getMonth(), oneWeekAfter.getDate()).getTime() /
-      1000;
+      new Date(i, now.getMonth(), now.getDate()).getTime() / 1000 - (daysInterval * 24 * 60 * 60);
+    const to = from + 2 * daysInterval * 24 * 60 * 60;
     promises.push(filterItemsWithThumbs(from, to, [], minStars, token, sid));
   }
   const values: PromiseSettledResult<Items>[] = await Promise.allSettled(
