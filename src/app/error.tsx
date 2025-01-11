@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import logger from "@/utils/loggerBrowser";
 import { useEffect } from "react";
-import { revalidatePath } from "next/cache";
  
 export default function Error({
   error,
@@ -27,8 +26,6 @@ export default function Error({
         onClick={
           // Attempt to recover by trying to re-render the invoices route
           () => {
-            revalidatePath("/");
-            reset();
             router.push(`/`);
           }
         }

@@ -2,13 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 
 export const RedirectToHome = () => { 
     const router = useRouter();
     
     useEffect(() => {
-        revalidatePath("/");
+        revalidateTag("photos");
         router.push(`/`);
     }, [router]);
     

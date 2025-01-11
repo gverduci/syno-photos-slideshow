@@ -1,9 +1,8 @@
 "use server"
 
+import { unstable_cacheLife as cacheLife, unstable_cacheTag as cacheTag } from 'next/cache'
 import { LoginResponse } from "@/types/loginResponse";
 import { getLoginUrl } from "@/utils/utils";
-
-const nextRevalidate = { next: { revalidate: 3600 } }
 
 export type SynologyLoginResponse = {
   data: {
@@ -22,24 +21,26 @@ export type SynologyLoginResponse = {
  * @returns 
  */
 async function login() : Promise<LoginResponse>{
-    const loginUrl = getLoginUrl();
-    const res = await fetch(loginUrl,{
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      ...nextRevalidate
-    })
-   
-    if (!res.ok) {
-      throw new Error('Failed request to login')
+  'use cache'
+  cacheLife('photos');
+  cacheTag('photos')
+  const loginUrl = getLoginUrl();
+  const res = await fetch(loginUrl,{
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
     }
-    const cookie = res.headers.get('Set-Cookie') || "";
-    const resJson: SynologyLoginResponse = await res.json();
-    if (resJson.success){
-      return {cookie, synotoken:resJson.data.synotoken, sid: resJson.data.sid};
-    }
-    throw new Error(`Failed to login, error code ${resJson.error.code}`)
+  })
+  
+  if (!res.ok) {
+    throw new Error('Failed request to login')
+  }
+  const cookie = res.headers.get('Set-Cookie') || "";
+  const resJson: SynologyLoginResponse = await res.json();
+  if (resJson.success){
+    return {cookie, synotoken:resJson.data.synotoken, sid: resJson.data.sid};
+  }
+  throw new Error(`Failed to login, error code ${resJson.error.code}`)
   }
 
   export default login;

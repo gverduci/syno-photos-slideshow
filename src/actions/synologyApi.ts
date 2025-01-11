@@ -1,7 +1,6 @@
 "use server"
 import { getBrowseSharedAlbumItemUrl, getBrowseSharedAlbumUrl, getCgiUrl, getFilterItemsUrl, getFiltersUrl, getItemThumbnailUrl } from "@/utils/utils";
-
-const nextRevalidate = { next: { revalidate: 3600 } }
+import { unstable_cacheLife as cacheLife, unstable_cacheTag as cacheTag } from 'next/cache'
 
 /**
  * Check fetch (http) error
@@ -120,6 +119,11 @@ export type Albums = {
   };
 }
 
+
+async function query(url: string, config: object = {}) {
+  return fetch(url, {...config});
+}
+
 /**
  * this function uses the passphrase given in the .env vaiable PASSPHRASE_SHARED_ALBUM
  * 
@@ -129,12 +133,11 @@ export type Albums = {
  */
 export async function getSharedAlbum(token: string, sid: string): Promise<Albums> {
   const url = getBrowseSharedAlbumUrl(token, sid);
-  const res = await fetch(url, {
+  const res = await query(url, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-    },
-    ...nextRevalidate
+    }
   })
   
   checkFetchResponseErrors(res);
@@ -212,7 +215,7 @@ export type Filters = {
  */
 export async function browseSharedAlbumItemsWithThumbs(itemCount:number, token: string, sid: string) : Promise<Items> {
   const url = getBrowseSharedAlbumItemUrl(0, itemCount, token, sid);
-  const res = await fetch(url, nextRevalidate);
+  const res = await query(url);
 
   checkFetchResponseErrors(res);
 
@@ -232,7 +235,7 @@ export async function getItemThumbnailByUrl(url: string) : Promise<string> {
   const buffer = await getArrayBufferResponse(res);
 
   const base64 = bytesToBase64(new Uint8Array(buffer));
-  const src: string = `data:image/jpeg;base64,${base64}`
+  const src: string = `data:image/jpeg;base64,${base64}`;
   return src;
 }
 
@@ -248,8 +251,11 @@ export async function getItemThumbnail(item: {filename: string, id:number, index
  * @returns items 
  */
 export async function getFilters(token: string, sid: string) : Promise<Filters> {
+  'use cache'
+  cacheLife('photos');
+  cacheTag('photos')
   const url = getFiltersUrl(token, sid);
-  const res = await fetch(url, nextRevalidate);
+  const res = await query(url);
 
   checkFetchResponseErrors(res);
 
@@ -257,8 +263,11 @@ export async function getFilters(token: string, sid: string) : Promise<Filters> 
 }
 
 export async function filterItemsWithThumbs(timeFrom:number, timeTo:number, folders: number[], minStars: number, token: string, sid: string) : Promise<Items> {
+  'use cache'
+  cacheLife('photos');
+  cacheTag('photos')
   const url = getFilterItemsUrl(timeFrom, timeTo, folders, minStars, token, sid);
-  const res = await fetch(url, nextRevalidate);
+  const res = await query(url);
   
   checkFetchResponseErrors(res);
 
@@ -268,13 +277,15 @@ export async function filterItemsWithThumbs(timeFrom:number, timeTo:number, fold
 // ---------------
 
 export async function getAlbums(token: string, _sid: string = "") {
+  'use cache'
+  cacheLife('photos');
+  cacheTag('photos')
   const loginUrl = `${getCgiUrl()}?api=SYNO.Foto.Browse.Album&version=1&method=list&offset=0&limit=100&SynoToken=${token}&_sid=${_sid}`;
-  const res = await fetch(loginUrl,{
+  const res = await query(loginUrl,{
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-    },
-    ...nextRevalidate
+    }
   })
   
   checkFetchResponseErrors(res);
@@ -283,32 +294,40 @@ export async function getAlbums(token: string, _sid: string = "") {
 }
 
 export  async function getFolders(folderId: number, method: string, token: string, _sid: string = "") {
+  'use cache'
+  cacheLife('photos');
+  cacheTag('photos')
   const url = `${getCgiUrl()}?api=SYNO.FotoTeam.Browse.Folder&version=1&method=${method}&id=${folderId}&offset=0&limit=100&SynoToken=${token}&_sid=${_sid}`;
-  const res = await fetch(url, nextRevalidate)
+  const res = await query(url)
   
   checkFetchResponseErrors(res);
 
-return getJsonResponse(res);
+  return getJsonResponse(res);
 }
 
 export  async function getFolderItems(folderId: number, token: string, _sid: string = "", cookie: any) {
+  'use cache'
+  cacheLife('photos');
+  cacheTag('photos')
   const url = `${getCgiUrl()}?api=SYNO.FotoTeam.Browse.Item&version=1&method=list&type=photo&offset=0&limit=100&folder_id=${folderId}&SynoToken=${token}&_sid=${_sid}`;
-  const res = await fetch(url,{
+  const res = await query(url,{
     method: 'GET',
       headers: {
       'Content-Type': 'application/json'
-    },
-    ...nextRevalidate
+    }
   })
   
   checkFetchResponseErrors(res);
 
-return getJsonResponse(res);
+  return getJsonResponse(res);
 }
 
 export async function getFolderItemsWithThumbs(folderId: number, token: string, _sid: string = "", cookie: any) {
+  'use cache'
+  cacheLife('photos');
+  cacheTag('photos')
   const url = `${getCgiUrl()}?api=SYNO.FotoTeam.Browse.Item&method=list&version=1&folder_id=${folderId}&additional=%5B%22thumbnail%22%2C%22resolution%22%2C%22orientation%22%2C%22video_convert%22%2C%22video_meta%22%5D&sort_by=%22takentime%22&sort_direction=%22asc%22&offset=0&limit=100&SynoToken=${token}&_sid=${_sid}`;
-  const res = await fetch(url, nextRevalidate);
+  const res = await query(url);
   
   checkFetchResponseErrors(res);
 
@@ -316,8 +335,11 @@ export async function getFolderItemsWithThumbs(folderId: number, token: string, 
 }
 
 export async function downloadItem(item: {filename: string, id:number, indexed_time:number}, token: string, _sid: string = "") {
+  'use cache'
+  cacheLife('photos');
+  cacheTag('photos')
   const url = `${getCgiUrl()}?item_id=[${item.id}]&api=SYNO.FotoTeam.Download&method=download&version=1&force_download=true&SynoToken=${token}&_sid=${_sid}`;
-  const res = await fetch(url,{method: 'GET', ...nextRevalidate})
+  const res = await query(url,{method: 'GET'})
   
   checkFetchResponseErrors(res);
 

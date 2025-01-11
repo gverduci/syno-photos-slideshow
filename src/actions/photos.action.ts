@@ -9,6 +9,7 @@ import {
   getFilters,
   getSharedAlbum,
 } from "./synologyApi";
+import { revalidateTag } from "next/cache";
 
 export type Photo = {
   cache_key: string;
@@ -27,9 +28,9 @@ export async function photosSamePeriod(
   sid: string,
   daysInterval: number,
   startYear: number,
-  minStars: number
+  minStars: number,
+  now: Date
 ): Promise<Photo[]> {
-  const now = new Date();
   now.setHours(0, 0, 0, 0);
   const year = now.getFullYear();
   const photos: Photo[] = [];
@@ -84,11 +85,18 @@ export async function photosSharedAlbum(
   return photos;
 }
 
-export async function getPhotos(token: string, sid: string): Promise<Photo[]> {
+export async function revalidatePhotos(){
+  await revalidateTag("photos");
+}
+
+export async function getPhotos(token: string, sid: string, currentTime: Date): Promise<Photo[]> {
   // const folders = await getFolders(1, "list_parents",auth.synotoken, auth.sid);
   // const subFolders = await getFolders(folders.data.list[2].id, "list", auth.synotoken, auth.sid);
   // const itemsWT = await getFolderItemsWithThumbs(subFolders.data.list[1].id, auth.synotoken, auth.sid, auth.cookie);
-
+  // if (revalidate) {
+  //   await revalidateTag("photos");
+  // }
+  const start = performance.now();
   let photos: Photo[] = [];
   if (process.env.passphraseSharedAlbum) {
     photos = await photosSharedAlbum(token, sid);
@@ -100,8 +108,11 @@ export async function getPhotos(token: string, sid: string): Promise<Photo[]> {
       parseInt(process.env.daysInterval || "7", 10),
       filters.data.time[filters.data.time.length - 1].year,
       parseInt(process.env.minStars || "0", 10),
+      currentTime
     );
   }
   logger.info(`#${photos.length}`);
+  const end = performance.now();
+  logger.info(`Execution time: ${end - start} ms`);
   return photos;
 }
