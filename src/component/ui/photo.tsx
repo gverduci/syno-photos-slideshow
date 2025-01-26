@@ -4,36 +4,24 @@ import { getItemThumbnailByUrl } from "@/actions/synologyApi";
 import Image from "next/image";
 import { Refresh } from "./refresh";
 import { getItemThumbnailUrlByCacheKey } from "@/utils/utils";
-import { getPhotos, Photo as PhotoType } from "@/actions/photos.action";
+import { Photo as PhotoType } from "@/actions/photos.action";
 import logger from "@/utils/logger";
-import { RedirectToHome } from './redirectToHome';
-import { connection } from 'next/server';
-import { revalidateTag } from 'next/cache';
+import PhotoSkeleton from './photoSkeleton';
 
 type Props = {
     currentIndex: number;
     token: string;
     sid: string;
+    photos: PhotoType[]
   };
 
 TimeAgo.addDefaultLocale(en)
 
-export const Photo = async ({currentIndex, token, sid}: Props) => { 
-  await connection();
-  const currentTime = new Date();
-  const photos: PhotoType[] = await getPhotos(token, sid, currentTime);
+export const Photo = async ({currentIndex, token, sid, photos}: Props) => { 
   if (photos.length > 0 && currentIndex <= photos.length - 1 && token && sid){
     logger.info(`${currentIndex} ${photos[currentIndex].name}`);
     const url: string = getItemThumbnailUrlByCacheKey(photos[currentIndex].cache_key, token, sid);
-    let src: string = "";
-    try{    
-      src = await getItemThumbnailByUrl(url);
-    }
-    catch(err) {
-      logger.error(err);
-      logger.info("Redirect to home");
-      return <RedirectToHome />
-    }
+    const src = await getItemThumbnailByUrl(url);
     const nextIndex = currentIndex + 1 > photos.length -1 ? 0 : currentIndex + 1;
     const datePhoto = photos[currentIndex].time * 1000;
     const timeAgo = new TimeAgo('it-IT')
@@ -55,5 +43,5 @@ export const Photo = async ({currentIndex, token, sid}: Props) => {
     </div>;
   }
   logger.info(`#no photos?! # ${photos.length} - ${currentIndex}`);
-  return <div>loading...</div>;
+  return <PhotoSkeleton />;
 }

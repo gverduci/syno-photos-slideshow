@@ -32,15 +32,12 @@ async function login() : Promise<LoginResponse>{
     }
   })
   
-  if (!res.ok) {
-    throw new Error('Failed request to login')
-  }
   const cookie = res.headers.get('Set-Cookie') || "";
   const resJson: SynologyLoginResponse = await res.json();
   if (resJson.success){
     return {cookie, synotoken:resJson.data.synotoken, sid: resJson.data.sid};
   }
-  throw new Error(`Failed to login, error code ${resJson.error.code}`)
-  }
+  return {cookie, synotoken:"", sid: ""};
+}
 
   export default login;
