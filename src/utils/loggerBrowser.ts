@@ -11,7 +11,7 @@ const logger = pino({
   timestamp: pino.stdTimeFunctions.isoTime,
   browser: {
     transmit: {
-      level: 'warn',
+      level: process.env.NEXT_PUBLIC_LOG_LEVEL || 'warn',
       send: function (level, logEvent) {
         console.log(logEvent);
         fetch(`/api/logger/${level}`,{

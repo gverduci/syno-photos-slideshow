@@ -1,4 +1,5 @@
-import logger from "@/utils/logger";
+import getLogger from "@/utils/logger";
+import { AppConfig, getConfig } from "@/utils/config";
 import {
   Album,
   Albums,
@@ -34,6 +35,7 @@ export async function photosSamePeriod(
   "use cache";
   cacheLife('photos');
   cacheTag('photos');
+  const config = getConfig();
   const now = new Date();
   now.setHours(0, 0, 0, 0);
   const year = now.getFullYear();
@@ -43,7 +45,7 @@ export async function photosSamePeriod(
     const from =
       new Date(i, now.getMonth(), now.getDate()).getTime() / 1000 - (daysInterval * 24 * 60 * 60);
     const to = from + 2 * daysInterval * 24 * 60 * 60;
-    promises.push(filterItemsWithThumbs(from, to, [], minStars, token, sid));
+    promises.push(filterItemsWithThumbs(from, to, [], minStars, token, sid, config));
   }
   const values: PromiseSettledResult<Items>[] = await Promise.allSettled(
     promises
@@ -67,19 +69,21 @@ export async function photosSamePeriod(
 
 export async function photosSharedAlbum(
   token: string,
-  sid: string
+  sid: string,
+  config: AppConfig
 ): Promise<Photo[]> {
   "use cache";
   cacheLife('photos');
   cacheTag('photos')
-  const albums: Albums = await getSharedAlbum(token, sid);
+  const albums: Albums = await getSharedAlbum(token, sid, config);
   const album = albums.data.list.find(
-    (a: Album) => a.passphrase === process.env.passphraseSharedAlbum
+    (a: Album) => a.passphrase === config.synology.passphraseSharedAlbum
   );
   const items: Items = await browseSharedAlbumItemsWithThumbs(
     album?.item_count || 0,
     token,
-    sid
+    sid,
+    config
   );
   const photos: Photo[] = [];
   items.data.list.forEach(async (item: any) => {
@@ -98,25 +102,25 @@ export async function revalidatePhotos(){
 
 export async function getPhotos(token: string, sid: string): Promise<Photo[]> {
   // const folders = await getFolders(1, "list_parents",auth.synotoken, auth.sid);
-  // const subFolders = await getFolders(folders.data.list[2].id, "list", auth.synotoken, auth.sid);
-  // const itemsWT = await getFolderItemsWithThumbs(subFolders.data.list[1].id, auth.synotoken, auth.sid, auth.cookie);
-  // if (revalidate) {
-  //   await revalidateTag("photos");
-  // }
-
+  // const subFoldersgetLogger
   let photos: Photo[] = [];
-  if (process.env.passphraseSharedAlbum) {
-    photos = await photosSharedAlbum(token, sid);
-  } else {
-    const filters = await getFilters(token, sid);
-    photos = await photosSamePeriod(
-      token,
-      sid,
-      parseInt(process.env.daysInterval || "7", 10),
-      filters.data.time[filters.data.time.length - 1].year,
-      parseInt(process.env.minStars || "0", 10)
-    );
+  try {
+    const config = getConfig();
+    if (config.synology.passphraseSharedAlbum) {
+      photos = await photosSharedAlbum(token, sid, config);
+    } else {
+      const filters = await getFilters(token, sid, config);
+      photos = await photosSamePeriod(
+        token,
+        sid,
+        config.slideShow.daysInterval,
+        filters.data.time[filters.data.time.length - 1].year,
+        config.slideShow.minStars
+      );
+    }
+    getLogger().info(`#${photos.length}`);
+  } catch (error) {
+    getLogger().error(`Error fetching photos: ${error}`);
   }
-  logger.info(`#${photos.length}`);
   return photos;
 }

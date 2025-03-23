@@ -1,4 +1,4 @@
-import logger from "@/utils/logger";
+import getLogger from "@/utils/logger";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
@@ -11,7 +11,7 @@ export async function POST(request: NextRequest, props: requestParams) {
   const boby = await request.json();
   const { messages } = boby;
   const message = messages && messages.length > 0 ? messages[0].msg : "generic error";
-
+  const logger = getLogger();
   switch (params.type) {
     case "info":
       logger.info(message);

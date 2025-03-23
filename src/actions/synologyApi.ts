@@ -1,4 +1,5 @@
 "use server"
+import { AppConfig } from "@/utils/config";
 import { getBrowseSharedAlbumItemUrl, getBrowseSharedAlbumUrl, getCgiUrl, getFilterItemsUrl, getFiltersUrl, getItemThumbnailUrl } from "@/utils/utils";
 import { unstable_cacheLife as cacheLife, unstable_cacheTag as cacheTag } from 'next/cache'
 
@@ -131,8 +132,8 @@ async function query(url: string, config: object = {}) {
  * @param sid the sid returned by the login
  * @returns a shared album
  */
-export async function getSharedAlbum(token: string, sid: string): Promise<Albums> {
-  const url = getBrowseSharedAlbumUrl(token, sid);
+export async function getSharedAlbum(token: string, sid: string, config: AppConfig): Promise<Albums> {
+  const url = getBrowseSharedAlbumUrl(token, sid, config);
   const res = await query(url, {
     method: 'GET',
     headers: {
@@ -213,8 +214,8 @@ export type Filters = {
  * @param sid the sid returned by the login
  * @returns items 
  */
-export async function browseSharedAlbumItemsWithThumbs(itemCount:number, token: string, sid: string) : Promise<Items> {
-  const url = getBrowseSharedAlbumItemUrl(0, itemCount, token, sid);
+export async function browseSharedAlbumItemsWithThumbs(itemCount:number, token: string, sid: string, config: AppConfig) : Promise<Items> {
+  const url = getBrowseSharedAlbumItemUrl(0, itemCount, token, sid, config);
   const res = await query(url);
 
   checkFetchResponseErrors(res);
@@ -239,8 +240,8 @@ export async function getItemThumbnailByUrl(url: string) : Promise<string> {
   return src;
 }
 
-export async function getItemThumbnail(item: {filename: string, id:number, indexed_time:number, additional: {thumbnail:{cache_key: string}}}, token: string, _sid: string = "") {
-  const loginUrl = getItemThumbnailUrl(item, token, _sid)
+export async function getItemThumbnail(item: {filename: string, id:number, indexed_time:number, additional: {thumbnail:{cache_key: string}}}, token: string, _sid: string, config: AppConfig) {
+  const loginUrl = getItemThumbnailUrl(item, token, _sid, config);
   return getItemThumbnailByUrl(loginUrl);
 }
 
@@ -250,11 +251,11 @@ export async function getItemThumbnail(item: {filename: string, id:number, index
  * @param sid the sid returned by the login
  * @returns items 
  */
-export async function getFilters(token: string, sid: string) : Promise<Filters> {
+export async function getFilters(token: string, sid: string, config: AppConfig) : Promise<Filters> {
   'use cache'
   cacheLife('photos');
   cacheTag('photos')
-  const url = getFiltersUrl(token, sid);
+  const url = getFiltersUrl(token, sid, config);
   const res = await query(url);
 
   checkFetchResponseErrors(res);
@@ -262,11 +263,11 @@ export async function getFilters(token: string, sid: string) : Promise<Filters> 
   return getJsonResponse<Filters>(res);
 }
 
-export async function filterItemsWithThumbs(timeFrom:number, timeTo:number, folders: number[], minStars: number, token: string, sid: string) : Promise<Items> {
+export async function filterItemsWithThumbs(timeFrom:number, timeTo:number, folders: number[], minStars: number, token: string, sid: string, config: AppConfig) : Promise<Items> {
   'use cache'
   cacheLife('photos');
   cacheTag('photos')
-  const url = getFilterItemsUrl(timeFrom, timeTo, folders, minStars, token, sid);
+  const url = getFilterItemsUrl(timeFrom, timeTo, folders, minStars, token, sid, config);
   const res = await query(url);
   
   checkFetchResponseErrors(res);
@@ -276,11 +277,11 @@ export async function filterItemsWithThumbs(timeFrom:number, timeTo:number, fold
 
 // ---------------
 
-export async function getAlbums(token: string, _sid: string = "") {
+export async function getAlbums(token: string, _sid: string = "", config: AppConfig) {
   'use cache'
   cacheLife('photos');
   cacheTag('photos')
-  const loginUrl = `${getCgiUrl()}?api=SYNO.Foto.Browse.Album&version=1&method=list&offset=0&limit=100&SynoToken=${token}&_sid=${_sid}`;
+  const loginUrl = `${getCgiUrl(config)}?api=SYNO.Foto.Browse.Album&version=1&method=list&offset=0&limit=100&SynoToken=${token}&_sid=${_sid}`;
   const res = await query(loginUrl,{
     method: 'GET',
     headers: {
@@ -293,11 +294,11 @@ export async function getAlbums(token: string, _sid: string = "") {
   return getJsonResponse(res);
 }
 
-export  async function getFolders(folderId: number, method: string, token: string, _sid: string = "") {
+export  async function getFolders(folderId: number, method: string, token: string, _sid: string, config: AppConfig) {
   'use cache'
   cacheLife('photos');
   cacheTag('photos')
-  const url = `${getCgiUrl()}?api=SYNO.FotoTeam.Browse.Folder&version=1&method=${method}&id=${folderId}&offset=0&limit=100&SynoToken=${token}&_sid=${_sid}`;
+  const url = `${getCgiUrl(config)}?api=SYNO.FotoTeam.Browse.Folder&version=1&method=${method}&id=${folderId}&offset=0&limit=100&SynoToken=${token}&_sid=${_sid}`;
   const res = await query(url)
   
   checkFetchResponseErrors(res);
@@ -305,11 +306,11 @@ export  async function getFolders(folderId: number, method: string, token: strin
   return getJsonResponse(res);
 }
 
-export  async function getFolderItems(folderId: number, token: string, _sid: string = "", cookie: any) {
+export  async function getFolderItems(folderId: number, token: string, _sid: string, cookie: any, config: AppConfig) {
   'use cache'
   cacheLife('photos');
   cacheTag('photos')
-  const url = `${getCgiUrl()}?api=SYNO.FotoTeam.Browse.Item&version=1&method=list&type=photo&offset=0&limit=100&folder_id=${folderId}&SynoToken=${token}&_sid=${_sid}`;
+  const url = `${getCgiUrl(config)}?api=SYNO.FotoTeam.Browse.Item&version=1&method=list&type=photo&offset=0&limit=100&folder_id=${folderId}&SynoToken=${token}&_sid=${_sid}`;
   const res = await query(url,{
     method: 'GET',
       headers: {
@@ -322,11 +323,11 @@ export  async function getFolderItems(folderId: number, token: string, _sid: str
   return getJsonResponse(res);
 }
 
-export async function getFolderItemsWithThumbs(folderId: number, token: string, _sid: string = "", cookie: any) {
+export async function getFolderItemsWithThumbs(folderId: number, token: string, _sid: string, cookie: any, config: AppConfig) {
   'use cache'
   cacheLife('photos');
   cacheTag('photos')
-  const url = `${getCgiUrl()}?api=SYNO.FotoTeam.Browse.Item&method=list&version=1&folder_id=${folderId}&additional=%5B%22thumbnail%22%2C%22resolution%22%2C%22orientation%22%2C%22video_convert%22%2C%22video_meta%22%5D&sort_by=%22takentime%22&sort_direction=%22asc%22&offset=0&limit=100&SynoToken=${token}&_sid=${_sid}`;
+  const url = `${getCgiUrl(config)}?api=SYNO.FotoTeam.Browse.Item&method=list&version=1&folder_id=${folderId}&additional=%5B%22thumbnail%22%2C%22resolution%22%2C%22orientation%22%2C%22video_convert%22%2C%22video_meta%22%5D&sort_by=%22takentime%22&sort_direction=%22asc%22&offset=0&limit=100&SynoToken=${token}&_sid=${_sid}`;
   const res = await query(url);
   
   checkFetchResponseErrors(res);
@@ -334,11 +335,11 @@ export async function getFolderItemsWithThumbs(folderId: number, token: string, 
   return getJsonResponse(res);
 }
 
-export async function downloadItem(item: {filename: string, id:number, indexed_time:number}, token: string, _sid: string = "") {
+export async function downloadItem(item: {filename: string, id:number, indexed_time:number}, token: string, _sid: string, config: AppConfig) {
   'use cache'
   cacheLife('photos');
   cacheTag('photos')
-  const url = `${getCgiUrl()}?item_id=[${item.id}]&api=SYNO.FotoTeam.Download&method=download&version=1&force_download=true&SynoToken=${token}&_sid=${_sid}`;
+  const url = `${getCgiUrl(config)}?item_id=[${item.id}]&api=SYNO.FotoTeam.Download&method=download&version=1&force_download=true&SynoToken=${token}&_sid=${_sid}`;
   const res = await query(url,{method: 'GET'})
   
   checkFetchResponseErrors(res);
@@ -353,9 +354,9 @@ function bytesToBase64(bytes: any) {
   return btoa(binString);
 }
   
-export async function downloadItemForm(item: {filename: string, id:number, indexed_time:number}, token: string, _sid: string = "", cookie: any) {
+export async function downloadItemForm(item: {filename: string, id:number, indexed_time:number}, token: string, _sid: string, cookie: any, config: AppConfig) {
   
-    const res = await fetch(`${getCgiUrl()}/SYNO.FotoTeam.Download`, {
+    const res = await fetch(`${getCgiUrl(config)}/SYNO.FotoTeam.Download`, {
       "credentials": "include",
       "headers": {
           "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0",
@@ -369,7 +370,7 @@ export async function downloadItemForm(item: {filename: string, id:number, index
           "Sec-GPC": "1",
           "Cookie": cookie
       },
-      "referrer": `${getCgiUrl()}`,
+      "referrer": `${getCgiUrl(config)}`,
       "body": `api=SYNO.FotoTeam.Download&method=download&version=1&item_id=[${item.id}]&force_download=true`,
       "method": "POST",
       "mode": "cors"

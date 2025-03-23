@@ -1,6 +1,6 @@
 {
   "name": "myphotos",
-  "version": "0.6.6",
+  "version": "0.7.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -12,6 +12,7 @@
   "dependencies": {
     "client-only": "^0.0.1",
     "javascript-time-ago": "^2.5.11",
+    "joi": "^17.13.3",
     "next": "^15.2.0-canary.26",
     "pino": "^9.0.0",
     "react": "^19.0.0",
