@@ -23,8 +23,6 @@ export default async function Slideshow({
   const nextIndex = params.then((p) => p.index);
 
   return (
-    <Suspense fallback={<PhotoSkeleton />}>
-      <PhotoContainerParams index={nextIndex} />
-    </Suspense>
+    <PhotoContainerParams index={nextIndex} />
   );
 }
