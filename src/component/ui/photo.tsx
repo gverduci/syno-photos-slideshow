@@ -38,7 +38,7 @@ export const Photo = async ({currentIndex, token, sid, photos}: Props) => {
         fill
         style={{objectFit:"contain"}}
       />
-      <div className="absolute right-0 bottom-0 px-4 py-3 pr-20 w-150">
+      <div className="absolute right-0 bottom-0 px-4 py-3 pr-20 w-100">
           <h2 className="text-5xl font-bold">
               {ago}
           </h2>
