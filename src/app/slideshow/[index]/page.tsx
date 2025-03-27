@@ -1,6 +1,5 @@
 import React, { Suspense } from 'react'
 import PhotoContainer from '@/component/ui/photoContainer';
-import PhotoSkeleton from '@/component/ui/photoSkeleton';
 
 type Props = {
   index: Promise<string>;

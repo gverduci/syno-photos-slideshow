@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
+      viewTransition: true,
       dynamicIO: true,
       cacheLife: {
         photos: {
@@ -10,8 +11,10 @@ const nextConfig = {
         },
       },
     },
+  ...(process.env.NODE_ENV !== "development" ? {devIndicators: false} : {}),
   env: {
-    slideshowTiming: process.env.SLIDESHOW_TIMING
+    slideshowTiming: process.env.SLIDESHOW_TIMING,
+    transition: process.env.TRANSITION
   },
 };
 

@@ -21,6 +21,7 @@ let _config: {
 		daysInterval: number;
 		useSharedSpace: boolean;
 		minStars: number;
+		transition: string;
 	};
 };
 
@@ -41,9 +42,10 @@ const initConfig = () => {
 				is: "false", then: Joi.string().required().description('synology shared album passphrase'),
 				otherwise: Joi.forbidden()
 			}),
-			SLIDESHOW_TIMING: Joi.number().allow('').description('timing between slides'),
-			DAYS_INTERVAL: Joi.number().description('day interval before now and after now to get photos'),
-			MIN_STARS: Joi.number().description('minimum stars to show photo'),
+			SLIDESHOW_TIMING: Joi.number().default(20000).description('timing between slides'),
+			DAYS_INTERVAL: Joi.number().default(7).description('day interval before now and after now to get photos'),
+			MIN_STARS: Joi.number().default(1).description('minimum stars to show photo'),
+			TRANSITION: Joi.string().default('none').description('transition between slides (sliding, fade, none)'),
 		})
 		.unknown();
 
@@ -68,7 +70,8 @@ const initConfig = () => {
 			timing: Number(envVars.SLIDESHOW_TIMING),
 			daysInterval: Number(envVars.DAYS_INTERVAL),
 			useSharedSpace: Boolean(envVars.USE_SHARED_SPACE),
-			minStars: Number(envVars.MIN_STARS)
+			minStars: Number(envVars.MIN_STARS),
+			transition: envVars.TRANSITION
 		},
 	};
 	if (envVars.SYNOLOGY_PASSPHRASE_SHARED_ALBUM) {
