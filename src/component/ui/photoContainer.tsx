@@ -7,6 +7,7 @@ type Props = {
   };
 
 export default async function PhotoContainer({currentIndex}: Props){ 
+    "use cache"
     const {synotoken, sid} = await login();
     const photos: PhotoType[] = await getPhotos(synotoken, sid);
 

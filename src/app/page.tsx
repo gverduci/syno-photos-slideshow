@@ -1,5 +1,4 @@
 import React, { Suspense } from 'react'
-import login from "@/actions/synologyAuth";
 import PhotoContainer from '@/component/ui/photoContainer';
 import PhotoSkeleton from '@/component/ui/photoSkeleton';
 

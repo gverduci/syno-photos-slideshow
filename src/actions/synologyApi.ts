@@ -236,8 +236,15 @@ export async function getItemThumbnailByUrl(url: string) : Promise<string> {
   const buffer = await getArrayBufferResponse(res);
 
   const base64 = bytesToBase64(new Uint8Array(buffer));
-  const src: string = `data:image/jpeg;base64,${base64}`;
-  return src;
+    
+  if (base64.startsWith("iVBORw0KGg")) {
+    return  `data:image/png;base64,${base64}`;
+  } else if (base64.startsWith("R0lG")) {
+    return  `data:image/gif;base64,${base64}`;
+  }
+  
+  // else if (base64.startsWith("/9j/4")){
+  return  `data:image/jpeg;base64,${base64}`;
 }
 
 export async function getItemThumbnail(item: {filename: string, id:number, indexed_time:number, additional: {thumbnail:{cache_key: string}}}, token: string, _sid: string, config: AppConfig) {
