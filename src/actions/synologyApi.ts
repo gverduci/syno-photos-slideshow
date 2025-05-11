@@ -2,6 +2,7 @@
 import { AppConfig } from "@/utils/config";
 import { getBrowseSharedAlbumItemUrl, getBrowseSharedAlbumUrl, getCgiUrl, getFilterItemsUrl, getFiltersUrl, getItemThumbnailUrl } from "@/utils/utils";
 import { unstable_cacheLife as cacheLife, unstable_cacheTag as cacheTag } from 'next/cache'
+import getLogger from "@/utils/logger";
 
 /**
  * Check fetch (http) error
@@ -230,20 +231,27 @@ export async function browseSharedAlbumItemsWithThumbs(itemCount:number, token: 
  */
 export async function getItemThumbnailByUrl(url: string) : Promise<string> {
   const res = await fetch(url, { cache: 'no-store' })
-
+  
   checkFetchResponseErrors(res);
 
   const buffer = await getArrayBufferResponse(res);
 
   const base64 = bytesToBase64(new Uint8Array(buffer));
     
-  if (base64.startsWith("iVBORw0KGg")) {
+  const contentType = res.headers.get("content-type") || "image/jpeg";
+  const contentLength = res.headers.get("content-length");
+
+  const logger = getLogger();
+
+  logger.info(`type: ${contentType} - size: ${contentLength}`);
+
+  if (contentType?.indexOf("image/png") > -1) {
     return  `data:image/png;base64,${base64}`;
-  } else if (base64.startsWith("R0lG")) {
+  } else if (contentType?.indexOf("image/gif") > -1) {
     return  `data:image/gif;base64,${base64}`;
   }
   
-  // else if (base64.startsWith("/9j/4")){
+  // else if (contentType?.indexOf("image/jpeg") > -1) {
   return  `data:image/jpeg;base64,${base64}`;
 }
 
