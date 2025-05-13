@@ -2,15 +2,18 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { revalidateTag } from "next/cache";
+import PhotoSkeleton from "./photoSkeleton";
 
 export const RedirectToHome = () => { 
     const router = useRouter();
     
     useEffect(() => {
-        revalidateTag("photos");
-        router.push(`/`);
+        // push the home url to the router after X second
+        const timeoutId = setTimeout(() => {
+            router.push('/')
+        }, parseInt(process.env.slideshowTiming || "20000", 10));
+        return () => clearTimeout(timeoutId);
     }, [router]);
     
-    return null;
+    return <PhotoSkeleton />;
 }
