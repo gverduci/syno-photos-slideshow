@@ -10,6 +10,7 @@ let _config: {
 	host: string;
 	port: number;
 	logger: { level: string };
+	lang: string;
 	synology: {
 		baseUrl: string;
 		username: string;
@@ -54,6 +55,7 @@ const initConfig = () => {
 				OPENHAB_BASE_URL: Joi.string().optional().description('OpenHab base URL for media player info'),
 				OPENHAB_CURRENT_TITLE_ITEM: Joi.string().optional().description('OpenHab item name for current media title'),
 				OPENHAB_CURRENT_ARTIST_ITEM: Joi.string().optional().description('OpenHab item name for current media artist'),
+				LANGUAGE: Joi.string().valid('en', 'de', 'fr', 'it', 'es').default('en').description('language for TimeAgo')
 			})
 			.unknown();	const { value: envVars, error } = envVarsSchema.prefs({ errors: { label: 'key' } }).validate(process.env);
 
@@ -66,6 +68,7 @@ const initConfig = () => {
 		host: envVars.NEXT_PUBLIC_HOST,
 		port: Number(envVars.PORT),
 		logger: { level: envVars.NEXT_PUBLIC_LOG_LEVEL },
+		lang: envVars.LANGUAGE,
 
 		synology: {
 			baseUrl: envVars.SYNOLOGY_PHOTOS_API_BASE_URL,
