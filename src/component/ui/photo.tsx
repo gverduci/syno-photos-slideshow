@@ -2,6 +2,7 @@ import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import { getItemThumbnailByUrl } from "@/actions/synologyApi";
 import { RefreshImage } from "./refreshImage";
+import { MediaPlayer } from "./mediaPlayer";
 import { getItemThumbnailUrlByCacheKey } from "@/utils/utils";
 import { Photo as PhotoType } from "@/actions/photos.action";
 import getLogger from "@/utils/logger";
@@ -32,6 +33,7 @@ export const Photo = async ({currentIndex, token, sid, photos}: Props) => {
     
     return <div className="relative h-screen">
       <RefreshImage nextIndex={nextIndex} src={src}/>
+      <MediaPlayer nextIndex={nextIndex} />
       <div className="absolute right-0 bottom-0 px-4 py-3 pr-20 w-100">
           <h2 className="text-5xl font-bold">
               {ago}

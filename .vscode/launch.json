@@ -26,6 +26,20 @@
           "uriFormat": "%s",
           "action": "debugWithChrome"
         }
+      },
+      {
+        "name": "Firefox Launch",
+        "type": "firefox",
+        "request": "launch",
+        "reAttach": true,
+        // "file": "${workspaceFolder}",
+        "tmpDir": "${workspaceFolder}/.vscode/firefox-tmp/",
+        "url": "http://192.168.178.40:3000"
+      },
+      {
+        "name": "Firefox Attach",
+        "type": "firefox",
+        "request": "attach"
       }
     ]
 }

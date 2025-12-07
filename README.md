@@ -62,6 +62,9 @@ You can also check out [the Next.js GitHub repository](https://github.com/vercel
 | `USE_SHARED_SPACE`             | Required    | `"false"` if using `PASSPHRASE_SHARED_ALBUM`, `"true"` otherwise            | `"false"`                                                              |
 | `MIN_STARS`                    | Optional    | Filter photos by stars (from `MIN_STARS` to `5`)                            | `1`                                                                    |
 | `TRANSITION`                   | Optional    | Transition between slides (`sliding`, `fading`, `none`)                     | `none`                                                                 |
+| `OPENHAB_BASE_URL`             | Optional    | OpenHab base URL for media player info                                      | `http://192.168.1.19:8080`                                           |
+| `OPENHAB_CURRENT_TITLE_ITEM`   | Optional    | OpenHab item name for current media title                                   | `livingroom_chromecast_title`                                          |
+| `OPENHAB_CURRENT_ARTIST_ITEM`  | Optional    | OpenHab item name for current media artist                                  | `livingroom_chromecast_artist`                                         |
 
 (*) To avoid DNS configuration issues, you can use the IP address.
 
