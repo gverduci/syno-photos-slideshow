@@ -4,6 +4,7 @@ import { getItemThumbnailByUrl } from "@/actions/synologyApi";
 import { RefreshImage } from "./refreshImage";
 import { MediaPlayer } from "./mediaPlayer";
 import { PhotoDate } from "./photoDate";
+import { RoomClimatePanel } from "./roomClimatePanel";
 import { getItemThumbnailUrlByCacheKey } from "@/utils/utils";
 import { Photo as PhotoType } from "@/actions/photos.action";
 import getLogger from "@/utils/logger";
@@ -34,6 +35,7 @@ export const Photo = async ({currentIndex, token, sid, photos}: Props) => {
       <RefreshImage nextIndex={nextIndex} src={src}/>
       <MediaPlayer nextIndex={nextIndex} />
       <PhotoDate datePhoto={datePhoto} />
+      <RoomClimatePanel />
     </div>;
   }
   logger.info(`#no photos?! ${currentIndex}/${photos.length} - sid: ${sid} - token: ${token}`);

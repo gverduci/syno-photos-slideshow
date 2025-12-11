@@ -65,6 +65,7 @@ You can also check out [the Next.js GitHub repository](https://github.com/vercel
 | `OPENHAB_BASE_URL`             | Optional    | OpenHab base URL for media player info                                      | `http://192.168.1.19:8080`                                           |
 | `OPENHAB_CURRENT_TITLE_ITEM`   | Optional    | OpenHab item name for current media title                                   | `livingroom_chromecast_title`                                          |
 | `OPENHAB_CURRENT_ARTIST_ITEM`  | Optional    | OpenHab item name for current media artist                                  | `livingroom_chromecast_artist`                                         |
+| `OPENHAB_ROOMS_JSON`           | Optional    | JSON array of rooms with temperature/humidity items                         | `[{"name":"living room","temperatureItem":"temp_living","humidityItem":"hum_living"},{"name":"bedroom","temperatureItem":"temp_bed","humidityItem":"hum_bed"}]` |
 
 (*) To avoid DNS configuration issues, you can use the IP address.
 

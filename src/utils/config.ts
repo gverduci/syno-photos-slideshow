@@ -28,6 +28,11 @@ let _config: {
 		baseUrl?: string;
 		currentTitleItem?: string;
 		currentArtistItem?: string;
+		rooms?: Array<{
+			name: string;
+			temperatureItem?: string;
+			humidityItem?: string;
+		}>;
 	};
 };
 
@@ -55,6 +60,7 @@ const initConfig = () => {
 				OPENHAB_BASE_URL: Joi.string().optional().description('OpenHab base URL for media player info'),
 				OPENHAB_CURRENT_TITLE_ITEM: Joi.string().optional().description('OpenHab item name for current media title'),
 				OPENHAB_CURRENT_ARTIST_ITEM: Joi.string().optional().description('OpenHab item name for current media artist'),
+				OPENHAB_ROOMS_JSON: Joi.string().optional().description('JSON array of rooms with temperature/humidity items'),
 				LANGUAGE: Joi.string().valid('en', 'de', 'fr', 'it', 'es').default('en').description('language for TimeAgo')
 			})
 			.unknown();	const { value: envVars, error } = envVarsSchema.prefs({ errors: { label: 'key' } }).validate(process.env);
@@ -91,7 +97,7 @@ const initConfig = () => {
 	}
 	// optional OpenHab item names for title and artist
 	if (envVars.OPENHAB_CURRENT_TITLE_ITEM || envVars.OPENHAB_CURRENT_ARTIST_ITEM) {
-		const oh: { baseUrl?: string; currentTitleItem?: string; currentArtistItem?: string } = _config.openhab ?? {};
+		const oh: { baseUrl?: string; currentTitleItem?: string; currentArtistItem?: string; rooms?: Array<any> } = _config.openhab ?? {};
 		if (envVars.OPENHAB_CURRENT_TITLE_ITEM) {
 			oh.currentTitleItem = envVars.OPENHAB_CURRENT_TITLE_ITEM;
 		}
@@ -99,6 +105,16 @@ const initConfig = () => {
 			oh.currentArtistItem = envVars.OPENHAB_CURRENT_ARTIST_ITEM;
 		}
 		_config.openhab = oh;
+	}
+	// optional OpenHab rooms configuration
+	if (envVars.OPENHAB_ROOMS_JSON) {
+		try {
+			const rooms = JSON.parse(envVars.OPENHAB_ROOMS_JSON);
+			if (!_config.openhab) _config.openhab = {};
+			_config.openhab.rooms = rooms;
+		} catch (e) {
+			console.warn('Failed to parse OPENHAB_ROOMS_JSON:', e);
+		}
 	}
 	return _config;
 };

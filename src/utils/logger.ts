@@ -16,7 +16,8 @@ const getLogger = (config?: AppConfig | undefined): Logger => {
                 return { level: label.toUpperCase() };
             },
         },
-        timestamp: pino.stdTimeFunctions.isoTime,
+        // avoid using Date.now() during Server Component render (Next.js prerender restrictions)
+        timestamp: false,
         base: null
     })
     return logger;
