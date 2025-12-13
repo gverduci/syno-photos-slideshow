@@ -1,9 +1,16 @@
-import { getConfig } from '@/utils/config';
+import { getConfig, Room } from '@/utils/config';
+
+interface RoomData {
+  name: string;
+  temperature: number | null;
+  humidity: number | null;
+  indoor: boolean;
+}
 
 export async function GET() {
   const config = getConfig();
   const openhabUrl = config.openhab?.baseUrl || process.env.OPENHAB_BASE_URL || 'http://192.168.178.64:8080';
-  const rooms = config.openhab?.rooms;
+  const rooms: Array<Room> | undefined = config.openhab?.rooms;
 
   if (!rooms || rooms.length === 0) {
     return Response.json({ rooms: [] });
@@ -11,11 +18,12 @@ export async function GET() {
 
   try {
     const roomsData = await Promise.all(
-      rooms.map(async (room: any) => {
-        const result: any = {
+      rooms.map(async (room: Room): Promise<RoomData> => {
+        const result: RoomData = {
           name: room.name,
           temperature: null,
           humidity: null,
+          indoor: room.indoor,
         };
 
         // Fetch temperature

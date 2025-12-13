@@ -5,6 +5,13 @@ import Joi from 'joi';
 // and use the getConfig function to access the runtime configuration.
 // https://nextjs.org/docs/pages/api-reference/config/next-config-js/runtime-configuration
 // https://nextjs.org/docs/pages/building-your-application/routing/custom-app
+export interface Room {
+  name: string;
+  temperatureItem: string;
+  humidityItem: string;
+  indoor: boolean;
+}
+
 let _config: {
 	env: string;
 	host: string;
@@ -28,11 +35,7 @@ let _config: {
 		baseUrl?: string;
 		currentTitleItem?: string;
 		currentArtistItem?: string;
-		rooms?: Array<{
-			name: string;
-			temperatureItem?: string;
-			humidityItem?: string;
-		}>;
+		rooms?: Array<Room>;
 	};
 };
 

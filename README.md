@@ -153,6 +153,10 @@ You can also check out [the Next.js GitHub repository](https://github.com/vercel
 - View error logs:
   ```bash
   sudo cat $HOME/.pm2/logs/<app-name>-err.log
+
+  sudo cat /root/.pm2/logs/nextjs-out.log
+  
+  sudo cat /root/.pm2/logs/nextjs-error.log
   ```
 
 ---
