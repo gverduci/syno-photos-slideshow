@@ -120,7 +120,9 @@ export async function getPhotos(token: string, sid: string): Promise<Photo[]> {
     }
     getLogger().info(`#${photos.length}`);
   } catch (error) {
-    getLogger().error(`Error fetching photos: ${error}`);
+    const digest = error instanceof Error && 'digest' in error ? error.digest : 'N/A';
+    const message = error instanceof Error ? error.message : String(error);
+    getLogger().error(`Error fetching photos: ${message} - DIGEST: ${digest}`);
   }
   return photos;
 }
