@@ -2,14 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import logger from '@/utils/loggerBrowser';
-import { dewPointCalculation, getDevPointColor, getDisconfortColor, classjfyDewPoint, getDisconfortLabel } from '@/utils/climateRules';
-
-interface RoomData {
-  name: string;
-  temperature: number | null;
-  humidity: number | null;
-  indoor: boolean;
-}
+import { RoomData } from '@/app/api/openhab/rooms/route';
 
 export const RoomClimatePanel = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -95,43 +88,25 @@ export const RoomClimatePanel = () => {
                 const temp = room.temperature;
                 const hum = room.humidity;
 
-                // Compute dew point color and discomfort color. Use fallbacks when values missing.
-                const dewPoint = temp !== null && hum !== null ? dewPointCalculation(temp, hum) : null;
-                const leftColor = dewPoint !== null ? getDevPointColor(dewPoint) : '#374151'; // fallback slate-700
-                const rightColor = temp !== null && hum !== null ? getDisconfortColor(temp, hum) : '#1f2937'; // fallback gray-800
+                function hsv_to_hsl(hsb: string | null | undefined): [number, number, number] {
+                  if (!hsb) return [0, 0, 0];
+                  let [h, s1, v1] = hsb.split(',').map(Number);
+                  let s = s1 / 100;
+                  const v = v1 / 100;
+                  var l = ((2 - s) * v / 2);
 
-                // Utility to parse hex colors (supports #RRGGBB and #RRGGBBAA)
-                const hexToRgb = (hex: string) => {
-                  if (!hex) return null;
-                  const h = hex.replace('#', '');
-                  if (h.length === 8) {
-                    const r = parseInt(h.slice(0, 2), 16);
-                    const g = parseInt(h.slice(2, 4), 16);
-                    const b = parseInt(h.slice(4, 6), 16);
-                    return { r, g, b };
+                  if (l != 0) {
+                      if (l == 1) {
+                          s = 0;
+                      } else if (l < 0.5) {
+                          s = s * v / (l * 2);
+                      } else {
+                          s = s * v / (2 - l * 2);
+                      }
                   }
-                  if (h.length === 6) {
-                    const r = parseInt(h.slice(0, 2), 16);
-                    const g = parseInt(h.slice(2, 4), 16);
-                    const b = parseInt(h.slice(4, 6), 16);
-                    return { r, g, b };
-                  }
-                  return null;
-                };
 
-                const srgbToLinear = (v: number) => {
-                  const s = v / 255;
-                  return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
-                };
-
-                const luminanceFromHex = (hex: string) => {
-                  const rgb = hexToRgb(hex);
-                  if (!rgb) return 0;
-                  const r = srgbToLinear(rgb.r);
-                  const g = srgbToLinear(rgb.g);
-                  const b = srgbToLinear(rgb.b);
-                  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-                };
+                  return [h, s * 100, l * 100];
+                }
 
                 const contrastRatio = (L1: number, L2: number) => {
                   const lighter = Math.max(L1, L2);
@@ -140,8 +115,10 @@ export const RoomClimatePanel = () => {
                 };
 
                 // Compute luminances
-                const lumLeft = luminanceFromHex(leftColor);
-                const lumRight = luminanceFromHex(rightColor);
+                const leftHsl = hsv_to_hsl(room.moldRiskColor);
+                const rightHsl = hsv_to_hsl(room.disconfortColor);
+                const lumLeft = leftHsl[2];
+                const lumRight = rightHsl[2];
 
                 // Contrast vs white (luminance 1) and black (luminance 0)
                 const contrastWhite = (contrastRatio(1, lumLeft) + contrastRatio(1, lumRight)) / 2;
@@ -151,8 +128,8 @@ export const RoomClimatePanel = () => {
 
                 const bgStyle: React.CSSProperties = {
                   backgroundImage: room.indoor
-                    ? `linear-gradient(90deg, ${leftColor} 0 50%, ${rightColor} 50% 100%)`
-                    : `linear-gradient(90deg, ${rightColor} 0 100%)`,
+                    ? `linear-gradient(90deg, hsl(${leftHsl[0]}, ${leftHsl[1]}%, ${leftHsl[2]}%) 0 50%, hsl(${rightHsl[0]}, ${rightHsl[1]}%, ${rightHsl[2]}%) 50% 100%)`
+                    : `linear-gradient(90deg, hsl(${rightHsl[0]}, ${rightHsl[1]}%, ${rightHsl[2]}%) 0 100%)`,
                   color: textColor,
                 };
 
@@ -183,16 +160,18 @@ export const RoomClimatePanel = () => {
                     </div>
 
                     {/* Left label (dew point class) - only for indoor rooms */}
-                    {dewPoint !== null && room.indoor && (
+                    {room.dewPoint !== null && room.indoor && (
                       <div className="absolute bottom-2 left-2 w-1/2 text-xs font-semibold truncate mt-2">
-                        {classjfyDewPoint(dewPoint).toString().charAt(0).toUpperCase() + classjfyDewPoint(dewPoint).toString().slice(1)}
+                        {/* {classjfyDewPoint(dewPoint).toString().charAt(0).toUpperCase() + classjfyDewPoint(dewPoint).toString().slice(1)} */}
+                        {room.moldRisk}
                       </div>
                     )}
 
                     {/* Right label (discomfort description) */}
                     {temp !== null && hum !== null && (
                       <div className="absolute bottom-2 right-2 w-1/2 text-xs font-semibold text-right truncate mt-2">
-                        {getDisconfortLabel(temp, hum)}
+                        {/* {getDisconfortLabel(temp, hum)} */}
+                        {room.disconfort}
                       </div>
                     )}
                   </div>

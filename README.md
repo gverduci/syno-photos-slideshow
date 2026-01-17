@@ -177,4 +177,6 @@ You can also check out [the Next.js GitHub repository](https://github.com/vercel
 4. Select the user `root`.
 5. Exit the configuration tool.
 
+In my case with Reasberry Pi 1, I had to install chromium manually following the steps indicated [here](https://github.com/MichaIng/DietPi/issues/3364).
+
 ---

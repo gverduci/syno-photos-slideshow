@@ -5,6 +5,32 @@ import { unstable_cacheLife as cacheLife, unstable_cacheTag as cacheTag } from '
 import getLogger from "@/utils/logger";
 
 /**
+ * Utility per fetch con timeout
+ * @param url 
+ * @param options 
+ * @param timeoutMs timeout in millisecondi (default 10000)
+ * @returns 
+ */
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs: number = 10000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(`Fetch timeout after ${timeoutMs}ms for URL: ${url}`);
+    }
+    throw error;
+  }
+}
+
+/**
  * Check fetch (http) error
  * @param res 
  */
@@ -123,7 +149,7 @@ export type Albums = {
 
 
 async function query(url: string, config: object = {}) {
-  return fetch(url, {...config});
+  return fetchWithTimeout(url, {...config}, 10000);
 }
 
 /**
@@ -230,7 +256,7 @@ export async function browseSharedAlbumItemsWithThumbs(itemCount:number, token: 
  * @returns the base64 src 
  */
 export async function getItemThumbnailByUrl(url: string) : Promise<string> {
-  const res = await fetch(url, { cache: 'no-store' })
+  const res = await fetchWithTimeout(url, { cache: 'no-store' }, 10000)
   
   checkFetchResponseErrors(res);
 
@@ -371,7 +397,7 @@ function bytesToBase64(bytes: any) {
   
 export async function downloadItemForm(item: {filename: string, id:number, indexed_time:number}, token: string, _sid: string, cookie: any, config: AppConfig) {
   
-    const res = await fetch(`${getCgiUrl(config)}/SYNO.FotoTeam.Download`, {
+    const res = await fetchWithTimeout(`${getCgiUrl(config)}/SYNO.FotoTeam.Download`, {
       "credentials": "include",
       "headers": {
           "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0",
@@ -389,7 +415,7 @@ export async function downloadItemForm(item: {filename: string, id:number, index
       "body": `api=SYNO.FotoTeam.Download&method=download&version=1&item_id=[${item.id}]&force_download=true`,
       "method": "POST",
       "mode": "cors"
-  });
+  }, 10000);
   
   checkFetchResponseErrors(res);
 

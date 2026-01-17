@@ -6,6 +6,7 @@ import Joi from 'joi';
 // https://nextjs.org/docs/pages/api-reference/config/next-config-js/runtime-configuration
 // https://nextjs.org/docs/pages/building-your-application/routing/custom-app
 export interface Room {
+  itemname: string;
   name: string;
   temperatureItem: string;
   humidityItem: string;

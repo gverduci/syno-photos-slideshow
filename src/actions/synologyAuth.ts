@@ -28,19 +28,32 @@ async function login() : Promise<LoginResponse>{
   cacheTag('photos')
   const config = getConfig();
   const loginUrl = getLoginUrl(config);
-  const res = await fetch(loginUrl, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+  try {
+    const res = await fetch(loginUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      signal: controller.signal
+    }).catch((error) => {
+      getLogger().error(`Error fetching login: ${error}`);
+    });
+    clearTimeout(timeoutId);
+    if (res){
+      const cookie = res.headers.get('Set-Cookie') || "";
+      const resJson: SynologyLoginResponse = await res.json();
+      if (resJson.success){
+        return {cookie, synotoken: resJson.data.synotoken, sid: resJson.data.sid};
+      }
     }
-  }).catch((error) => {
-    getLogger().error(`Error fetching login: ${error}`);
-  });
-  if (res){
-    const cookie = res.headers.get('Set-Cookie') || "";
-    const resJson: SynologyLoginResponse = await res.json();
-    if (resJson.success){
-      return {cookie, synotoken: resJson.data.synotoken, sid: resJson.data.sid};
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      getLogger().error('Login request timeout after 5 seconds');
+    } else {
+      getLogger().error(`Error during login: ${error}`);
     }
   }
   return {cookie: "", synotoken:"", sid: ""};

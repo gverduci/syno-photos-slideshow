@@ -19,7 +19,7 @@ async function getCachedPhotos(): Promise<{ token: string; sid: string; photos: 
   // Retry logic per getPhotos se ritorna array vuoto
   let photos: PhotoType[] = [];
   const maxRetries = 5;
-  const delayMs = 20000;
+  const delayMs = 2000;
   
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     photos = await getPhotos(token, sid);
