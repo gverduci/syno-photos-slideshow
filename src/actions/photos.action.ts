@@ -19,7 +19,7 @@ export type Photo = {
   time: number;
 };
 
-function getMultipleRandom(arr: any[], num: number) {
+function getMultipleRandom<T>(arr: T[], num: number): T[] {
   const shuffled = [...arr].sort(() => 0.5 - Math.random());
 
   return shuffled.slice(0, num);
@@ -52,8 +52,8 @@ export async function photosSamePeriod(
   );
   values.forEach((result: PromiseSettledResult<Items>) => {
     if (result.status === "fulfilled") {
-      getMultipleRandom(result.value.data.list, 10).forEach(
-        async (item: any) => {
+      getMultipleRandom<Item>(result.value.data.list, 10).forEach(
+        async (item: Item) => {
           photos.push({
             cache_key: item.additional.thumbnail.cache_key,
             name: item.filename,
@@ -63,7 +63,7 @@ export async function photosSamePeriod(
       );
     }
   });
-  const shuffledPhoto : Photo[] = getMultipleRandom(photos, photos.length)
+  const shuffledPhoto : Photo[] = getMultipleRandom<Photo>(photos, photos.length)
   return shuffledPhoto;
 }
 
@@ -86,7 +86,7 @@ export async function photosSharedAlbum(
     config
   );
   const photos: Photo[] = [];
-  items.data.list.forEach(async (item: any) => {
+  items.data.list.forEach(async (item: Item) => {
     photos.push({
       cache_key: item.additional.thumbnail.cache_key,
       name: item.filename,

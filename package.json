@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "clean": "rm -rf .next/cache/fetch-cache"
+    "clean": "rm -rf .next/cache/fetch-cache",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "client-only": "^0.0.1",

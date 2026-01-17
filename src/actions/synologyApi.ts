@@ -347,7 +347,7 @@ export  async function getFolders(folderId: number, method: string, token: strin
   return getJsonResponse(res);
 }
 
-export  async function getFolderItems(folderId: number, token: string, _sid: string, cookie: any, config: AppConfig) {
+export  async function getFolderItems(folderId: number, token: string, _sid: string, cookie: string, config: AppConfig) {
   'use cache'
   cacheLife('photos');
   cacheTag('photos')
@@ -364,7 +364,7 @@ export  async function getFolderItems(folderId: number, token: string, _sid: str
   return getJsonResponse(res);
 }
 
-export async function getFolderItemsWithThumbs(folderId: number, token: string, _sid: string, cookie: any, config: AppConfig) {
+export async function getFolderItemsWithThumbs(folderId: number, token: string, _sid: string, cookie: string, config: AppConfig) {
   'use cache'
   cacheLife('photos');
   cacheTag('photos')
@@ -388,14 +388,14 @@ export async function downloadItem(item: {filename: string, id:number, indexed_t
   return getJsonResponse(res);
 }
 
-function bytesToBase64(bytes: any) {
+function bytesToBase64(bytes: Uint8Array): string {
   const binString = Array.from(bytes, (byte: number) =>
     String.fromCodePoint(byte),
   ).join("");
   return btoa(binString);
 }
   
-export async function downloadItemForm(item: {filename: string, id:number, indexed_time:number}, token: string, _sid: string, cookie: any, config: AppConfig) {
+export async function downloadItemForm(item: {filename: string, id:number, indexed_time:number}, token: string, _sid: string, cookie: string, config: AppConfig) {
   
     const res = await fetchWithTimeout(`${getCgiUrl(config)}/SYNO.FotoTeam.Download`, {
       "credentials": "include",
