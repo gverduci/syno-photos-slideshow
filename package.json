@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "next lint",
     "clean": "rm -rf .next/cache/fetch-cache",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:debug": "node --inspect-brk node_modules/.bin/jest --runInBand"
   },
   "dependencies": {
     "client-only": "^0.0.1",
@@ -29,6 +33,13 @@
     "eslint-config-next": "^15.1.4",
     "postcss": "^8",
     "tailwindcss": "^4.1.6",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/jest": "^29.5.14",
+    "jest": "^30.0.0",
+    "jest-environment-jsdom": "^30.0.0",
+    "msw": "^2.1.5"
   }
 }
