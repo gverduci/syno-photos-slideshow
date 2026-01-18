@@ -40,6 +40,8 @@
     "@types/jest": "^29.5.14",
     "jest": "^30.0.0",
     "jest-environment-jsdom": "^30.0.0",
-    "msw": "^2.1.5"
+    "msw": "^2.1.5",
+    "ts-node": "^10.0.0"
+
   }
 }

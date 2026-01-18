@@ -10,6 +10,9 @@ React in questa codebase.
 - Scrivere test esclusivamente nella directory '/tests/'
 - Eseguire test e analizzare i risultati
 - Non modificare mai il codice sorgente
+- puoi modificare o creare solo file di test nella directory '/tests/' e la configurazione dei test
+- Usa Jest come framework di test
+- Scrivi test table-driven con descrizioni chiare
 
 ## Comandi
 

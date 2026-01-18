@@ -24,6 +24,7 @@ let _config: {
 		username: string;
 		password: string;
 		passphraseSharedAlbum?: string;
+		useSharedSpace?: boolean;
 	};
 	slideShow: {
 		timing: number;
@@ -43,15 +44,15 @@ let _config: {
 const initConfig = () => {
 		const envVarsSchema = Joi.object()
 			.keys({
-				NODE_ENV: Joi.string().valid('production', 'development', 'test').required(),
+				NODE_ENV: Joi.string().valid('production', 'development', 'test').default('development'),
 				NEXT_PUBLIC_LOG_LEVEL: Joi.string()
 					.valid('emerg', 'alert', 'crit', 'error', 'warning', 'notice', 'info', 'debug')
 					.default('debug'),
 				PORT: Joi.number().default(3000),
 				NEXT_PUBLIC_HOST: Joi.string().description('host'),
-				SYNOLOGY_PHOTOS_API_BASE_URL: Joi.string().description('synology api base url'),
-				SYNOLOGY_PHOTOS_USERNAME: Joi.string().description('synology username'),
-				SYNOLOGY_PHOTOS_PASSWORD: Joi.string().description('synology password'),
+				SYNOLOGY_PHOTOS_API_BASE_URL: Joi.string().required().description('synology api base url'),
+				SYNOLOGY_PHOTOS_USERNAME: Joi.string().required().description('synology username'),
+				SYNOLOGY_PHOTOS_PASSWORD: Joi.string().required().description('synology password'),
 				USE_SHARED_SPACE: Joi.string().valid("true", "false").description('use shared space'),
 				SYNOLOGY_PASSPHRASE_SHARED_ALBUM: Joi.string().when('USE_SHARED_SPACE', {
 					is: "false", then: Joi.string().required().description('synology shared album passphrase'),
@@ -61,13 +62,28 @@ const initConfig = () => {
 				DAYS_INTERVAL: Joi.number().default(7).description('day interval before now and after now to get photos'),
 				MIN_STARS: Joi.number().default(1).description('minimum stars to show photo'),
 				TRANSITION: Joi.string().default('none').description('transition between slides (sliding, fade, none)'),
-				OPENHAB_BASE_URL: Joi.string().optional().description('OpenHab base URL for media player info'),
+				OPENHAB_BASE_URL: Joi.string()
+					.when('OPENHAB_CURRENT_TITLE_ITEM', {
+						is: Joi.exist(),
+						then: Joi.string().required(),
+						otherwise: Joi.string().when('OPENHAB_CURRENT_ARTIST_ITEM', {
+							is: Joi.exist(),
+							then: Joi.string().required(),
+							otherwise: Joi.string().when('OPENHAB_ROOMS_JSON', {
+								is: Joi.exist(),
+								then: Joi.string().required(),
+								otherwise: Joi.string().optional()
+							})
+						})
+					})
+					.description('OpenHab base URL for media player info'),
 				OPENHAB_CURRENT_TITLE_ITEM: Joi.string().optional().description('OpenHab item name for current media title'),
 				OPENHAB_CURRENT_ARTIST_ITEM: Joi.string().optional().description('OpenHab item name for current media artist'),
 				OPENHAB_ROOMS_JSON: Joi.string().optional().description('JSON array of rooms with temperature/humidity items'),
 				LANGUAGE: Joi.string().valid('en', 'de', 'fr', 'it', 'es').default('en').description('language for TimeAgo')
 			})
-			.unknown();	const { value: envVars, error } = envVarsSchema.prefs({ errors: { label: 'key' } }).validate(process.env);
+			.unknown();	
+		const { value: envVars, error } = envVarsSchema.prefs({ errors: { label: 'key' } }).validate(process.env);
 
 	if (error) {
 		throw new Error(`Config validation error: ${error.message}`);
@@ -112,13 +128,9 @@ const initConfig = () => {
 	}
 	// optional OpenHab rooms configuration
 	if (envVars.OPENHAB_ROOMS_JSON) {
-		try {
-			const rooms = JSON.parse(envVars.OPENHAB_ROOMS_JSON);
-			if (!_config.openhab) _config.openhab = {};
-			_config.openhab.rooms = rooms;
-		} catch (e) {
-			console.warn('Failed to parse OPENHAB_ROOMS_JSON:', e);
-		}
+		const rooms = JSON.parse(envVars.OPENHAB_ROOMS_JSON);
+		if (!_config.openhab) _config.openhab = {};
+		_config.openhab.rooms = rooms;
 	}
 	return _config;
 };
@@ -131,6 +143,10 @@ const getConfig = () => {
 	return _config;
 };
 
+const resetConfig = () => {
+	_config = undefined as any;
+};
+
 export type AppConfig = typeof _config;
 
-export { initConfig, getConfig };
+export { initConfig, getConfig, resetConfig };
