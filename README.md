@@ -166,6 +166,10 @@ You can also check out [the Next.js GitHub repository](https://github.com/vercel
 ### Phase 1: Install the Operating System
 - Install [DietPi](https://dietpi.com/).
 
+I use DietPi version [`v9.1.1`](https://dietpi.com/docs/releases/v9_1) on a Raspberry Pi 1 Model B (armv6l). It is based on Debian 11 (Bullseye).
+
+If you need to install an older version of Chromium that works on Raspberry Pi 1 Model B (armv6l), you can find the [images on Internet Archive](https://web.archive.org/web/20240303174034/https://dietpi.com/downloads/images/).
+
 ### Phase 2: Configure DietPi
 1. Run the configuration tool:
    ```bash
@@ -177,7 +181,24 @@ You can also check out [the Next.js GitHub repository](https://github.com/vercel
 4. Select the user `root`.
 5. Exit the configuration tool.
 
-In my case, with Reasberry Pi 1, I had to install chromium manually following the steps indicated [here](https://github.com/MichaIng/DietPi/issues/3364#issuecomment-581158357).
+### Phase 3: Configure Chromium
+The new chromium versione in DietPi repositories may not work on Raspberry Pi 1 Model B (armv6l) cause of the lacks support for NEON SIMD extensions.
+
+I use Chromium version `104.0.5112.105-rpt2 armhf` (2022 09 07).
+
+To install this version, [follow these steps](https://github.com/guysoft/FullPageOS/discussions/621):
+
+```bash
+wget https://archive.raspberrypi.org/debian/pool/main/c/chromium-browser/chromium-codecs-ffmpeg-extra_104.0.5112.105-rpt2_armhf.deb
+
+wget https://archive.raspberrypi.org/debian/pool/main/c/chromium-browser/chromium-browser_104.0.5112.105-rpt2_armhf.deb
+
+sudo apt install ./chromium-codecs-ffmpeg-extra_104.0.5112.105-rpt2_armhf.deb
+
+sudo apt install ./chromium-browser_104.0.5112.105-rpt2_armhf.deb
+
+sudo reboot
+```
 
 ---
 
