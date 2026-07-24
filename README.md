@@ -200,6 +200,10 @@ sudo apt install ./chromium-browser_104.0.5112.105-rpt2_armhf.deb
 sudo reboot
 ```
 
+### Phase 4: Configure Kiosk Mode
+1. Run `dietpi-launcher` to edit the autostart configuration.
+2. select `Chromium - dedicated use without desktop`.
+
 ---
 
 ## Openhab Integration

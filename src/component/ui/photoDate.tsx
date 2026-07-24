@@ -1,10 +1,8 @@
+"use client";
+
+import { useState, useEffect } from 'react';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
-import de from 'javascript-time-ago/locale/en';
-import fr from 'javascript-time-ago/locale/en';
-import it from 'javascript-time-ago/locale/en';
-import es from 'javascript-time-ago/locale/en';
-import { getConfig } from '@/utils/config';
 
 TimeAgo.addLocale(en);
 
@@ -13,9 +11,12 @@ type Props = {
 };
 
 export const PhotoDate = ({ datePhoto }: Props) => {
-  const config = getConfig();
-  const timeAgo = new TimeAgo(config.lang || 'en');
-  const ago = timeAgo.format(new Date(datePhoto));
+  const [ago, setAgo] = useState('');
+
+  useEffect(() => {
+    const timeAgo = new TimeAgo('en');
+    setAgo(timeAgo.format(new Date(datePhoto)));
+  }, [datePhoto]);
 
   return (
     <div className="absolute right-0 bottom-0 px-4 py-3 pr-20 w-100">

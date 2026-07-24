@@ -260,17 +260,27 @@ export async function getItemThumbnailByUrl(url: string) : Promise<string> {
   
   checkFetchResponseErrors(res);
 
-  const buffer = await getArrayBufferResponse(res);
-
-  const base64 = bytesToBase64(new Uint8Array(buffer));
-    
   const contentType = res.headers.get("content-type") || "image/jpeg";
   const contentLength = res.headers.get("content-length");
 
   const logger = getLogger();
-
   logger.info(`type: ${contentType} - size: ${contentLength}`);
 
+  // Stream the response body and collect chunks as Uint8Array
+  const chunks: Uint8Array[] = [];
+  const reader = res.body!.getReader();
+  
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+  }
+  
+  // Use Buffer.concat for efficient concatenation, then base64 encode directly
+  // This avoids: ArrayBuffer → Uint8Array → Array.from() → String.fromCodePoint() → join() → btoa()
+  const buffer = Buffer.concat(chunks);
+  const base64 = buffer.toString('base64');
+  
   if (contentType?.indexOf("image/png") > -1) {
     return  `data:image/png;base64,${base64}`;
   } else if (contentType?.indexOf("image/gif") > -1) {
@@ -389,10 +399,8 @@ export async function downloadItem(item: {filename: string, id:number, indexed_t
 }
 
 function bytesToBase64(bytes: Uint8Array): string {
-  const binString = Array.from(bytes, (byte: number) =>
-    String.fromCodePoint(byte),
-  ).join("");
-  return btoa(binString);
+  // Use Buffer for efficient base64 encoding without intermediate string creation
+  return Buffer.from(bytes).toString('base64');
 }
   
 export async function downloadItemForm(item: {filename: string, id:number, indexed_time:number}, token: string, _sid: string, cookie: string, config: AppConfig) {

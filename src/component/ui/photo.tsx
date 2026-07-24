@@ -1,15 +1,10 @@
-import TimeAgo from 'javascript-time-ago'
-import en from 'javascript-time-ago/locale/en'
-import { getItemThumbnailByUrl } from "@/actions/synologyApi";
 import { RefreshImage } from "./refreshImage";
 import { MediaPlayer } from "./mediaPlayer";
 import { PhotoDate } from "./photoDate";
 import { RoomClimatePanel } from "./roomClimatePanel";
-import { getItemThumbnailUrlByCacheKey } from "@/utils/utils";
 import { Photo as PhotoType } from "@/actions/photos.action";
 import getLogger from "@/utils/logger";
 import PhotoSkeleton from './photoSkeleton';
-import { getConfig } from '@/utils/config';
 import { RedirectToHome } from './redirectToHome';
 
 type Props = {
@@ -19,15 +14,11 @@ type Props = {
     photos: PhotoType[]
   };
 
-TimeAgo.addDefaultLocale(en)
-
-export const Photo = async ({currentIndex, token, sid, photos}: Props) => { 
+export const Photo = async ({currentIndex, token, sid, photos}: Props) => {
   const logger = getLogger();
-  const config = getConfig();
   if (photos.length > 0 && currentIndex <= photos.length - 1 && token && sid){
     logger.info(`${currentIndex}/${photos.length} ${photos[currentIndex].name}`);
-    const url: string = getItemThumbnailUrlByCacheKey(photos[currentIndex].cache_key, token, sid, config);
-    const src = await getItemThumbnailByUrl(url);
+    const src = `/api/thumbnail?cache_key=${encodeURIComponent(photos[currentIndex].cache_key)}&token=${encodeURIComponent(token)}&sid=${encodeURIComponent(sid)}`;
     const nextIndex = currentIndex + 1 > photos.length -1 ? 0 : currentIndex + 1;
     const datePhoto = photos[currentIndex].time * 1000;
     
